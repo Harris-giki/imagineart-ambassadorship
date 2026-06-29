@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useState } from "react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 const FALLBACK_TOTAL = 5
 
@@ -41,6 +42,9 @@ export default function IntroPreloader() {
       window.setTimeout(() => {
         setMounted(false)
         document.body.style.overflow = ""
+        // Scroll just became available again → recalc pinned triggers so the
+        // showcase/intro pins use correct positions on the now-scrollable page.
+        ScrollTrigger.refresh()
       }, 520) // match the CSS transition duration below
     }
 

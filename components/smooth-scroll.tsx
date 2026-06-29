@@ -46,8 +46,17 @@ export default function SmoothScroll() {
     gsap.ticker.add(onTick)
     gsap.ticker.lagSmoothing(0)
 
+    // Recalculate ScrollTrigger positions whenever the layout settles after
+    // first paint — webfonts swapping in (FitText / condensed headings) and
+    // late-loading images both change section heights and would otherwise
+    // leave pinned triggers (intro, showcase) measuring stale start positions.
+    const refresh = () => ScrollTrigger.refresh()
+    if ((document as any).fonts?.ready) (document as any).fonts.ready.then(refresh).catch(() => {})
+    window.addEventListener("load", refresh)
+
     return () => {
       gsap.ticker.remove(onTick)
+      window.removeEventListener("load", refresh)
       lenis.destroy()
     }
   }, [])

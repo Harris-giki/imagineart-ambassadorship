@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useState } from "react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import CinematicIntro from "@/components/cinematic-intro"
 import AmbassadorHero from "@/components/ambassador-hero"
 import IntroPreloader from "@/components/intro-preloader"
@@ -33,6 +34,21 @@ export default function HeroIntro() {
     mq.addEventListener("change", apply)
     return () => mq.removeEventListener("change", apply)
   }, [])
+
+  // The hero/intro mounts AFTER the initial render (once `mode` resolves), which
+  // changes the page height — so any ScrollTrigger created earlier (e.g. the
+  // showcase pin) has a stale start position and would pin over the wrong
+  // section. Recalculate all triggers once the hero is in the layout, and again
+  // shortly after to catch async height changes (images/fonts settling).
+  useEffect(() => {
+    if (mode === "pending") return
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh())
+    const t = window.setTimeout(() => ScrollTrigger.refresh(), 450)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(t)
+    }
+  }, [mode])
 
   // Pre-decision: a FIXED full-screen black cover (z-200, same as the loader)
   // from the very first painted frame. Critical: the AmbassadorHeroImage card
