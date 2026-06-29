@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import 'lenis/dist/lenis.css'
@@ -13,6 +13,14 @@ const googleSans = localFont({
   display: 'swap',
   weight: '100 900',
 })
+
+// Responsive viewport (allow pinch-zoom for accessibility; cover the notch).
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#000000',
+}
 
 export const metadata: Metadata = {
   title: 'ImagineArt Ambassador Program',

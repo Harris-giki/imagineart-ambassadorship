@@ -27,8 +27,10 @@
  */
 
 import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import type { ShowcaseImage } from "@/lib/showcase-images"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -64,7 +66,7 @@ const MAX_CARDS = 7
 // clearly one-after-another.
 const STEP = 0.7
 
-export default function ShowcaseScrollSection({ images }: { images: string[] }) {
+export default function ShowcaseScrollSection({ images }: { images: ShowcaseImage[] }) {
   const rootRef = useRef<HTMLElement>(null)
   const headlineRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<HTMLDivElement[]>([])
@@ -76,7 +78,7 @@ export default function ShowcaseScrollSection({ images }: { images: string[] }) 
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
   }, [])
 
-  const items = images.slice(0, MAX_CARDS).map((src, i) => ({ src, slot: SLOTS[i % SLOTS.length] }))
+  const items = images.slice(0, MAX_CARDS).map((img, i) => ({ ...img, slot: SLOTS[i % SLOTS.length] }))
 
   // ---- GSAP pin + scrub (skipped entirely for reduced motion) -------------
   useEffect(() => {
@@ -153,12 +155,14 @@ export default function ShowcaseScrollSection({ images }: { images: string[] }) 
           <Headline />
           <div className="mt-12 flex flex-col items-center gap-6">
             {items.map((it) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 key={it.src}
                 src={it.src}
+                width={it.width}
+                height={it.height}
                 alt=""
-                className="w-full max-w-[460px] rounded-2xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.8)]"
+                sizes="(max-width: 520px) 90vw, 460px"
+                className="h-auto w-full max-w-[460px] rounded-2xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.8)]"
               />
             ))}
           </div>
@@ -186,8 +190,15 @@ export default function ShowcaseScrollSection({ images }: { images: string[] }) 
             className="absolute top-0 overflow-hidden rounded-2xl shadow-[0_24px_70px_-18px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
             style={{ left: it.slot.left, width: it.slot.width, willChange: "transform" }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={it.src} alt="" draggable={false} className="block h-auto w-full select-none" />
+            <Image
+              src={it.src}
+              width={it.width}
+              height={it.height}
+              alt=""
+              draggable={false}
+              sizes="(max-width: 767px) 80vw, 45vw"
+              className="block h-auto w-full select-none"
+            />
           </div>
         ))}
       </div>

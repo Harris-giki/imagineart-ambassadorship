@@ -21,7 +21,7 @@
  * the shared container width, and the project fonts.
  */
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { Reveal } from "@/components/primitives/Reveal"
 import Globe from "@/components/globe"
@@ -148,6 +148,17 @@ export default function AmbassadorWhatYouGet() {
   // Single open row at a time; first row open by default.
   const [openIndex, setOpenIndex] = useState(0)
 
+  // Only mount the Globe on lg+ (where it's visible). Avoids its world-data
+  // fetch + 60fps SVG redraw running on phones where the column is hidden.
+  const [showGlobe, setShowGlobe] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)")
+    const sync = () => setShowGlobe(mq.matches)
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
+
   return (
     <section
       id="what-you-get"
@@ -160,7 +171,7 @@ export default function AmbassadorWhatYouGet() {
         <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
           <h2
             className="font-display uppercase leading-[0.9] tracking-[-0.02em] text-content-primary"
-            style={{ fontSize: "clamp(48px, 9vw, 132px)", fontWeight: 600, fontStretch: "condensed" }}
+            style={{ fontSize: "clamp(36px, 9vw, 132px)", fontWeight: 600, fontStretch: "condensed" }}
           >
             What You Get
           </h2>
@@ -177,7 +188,7 @@ export default function AmbassadorWhatYouGet() {
           <div className="hidden lg:block lg:w-[42%] lg:shrink-0">
             <div className="sticky top-24">
               <div className="mx-auto aspect-square w-full max-w-[460px]">
-                <Globe />
+                {showGlobe && <Globe />}
               </div>
             </div>
           </div>

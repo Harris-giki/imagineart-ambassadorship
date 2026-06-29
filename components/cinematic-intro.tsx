@@ -270,7 +270,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "-15%",
           }}
         >
-          <Image src="/images/earth-1.png" alt="Earth from space" fill className="object-cover" priority />
+          <Image src="/images/earth-1.png" alt="Earth from space" fill className="object-cover" priority sizes="130vw" />
         </div>
 
         {/* Orbital station */}
@@ -285,7 +285,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "20px",
           }}
         >
-          <Image src="/images/starship_earth.png" alt="Space station" fill className="object-contain" />
+          <Image src="/images/starship_earth.png" alt="Space station" fill className="object-contain" sizes="130vw" />
         </div>
 
         {/* Spacecraft window frame (centered) */}
@@ -300,7 +300,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "-15%",
           }}
         >
-          <Image src="/images/earth-2.png" alt="Spacecraft interior window" fill className="object-contain object-center" />
+          <Image src="/images/earth-2.png" alt="Spacecraft interior window" fill className="object-contain object-center" sizes="130vw" />
         </div>
 
         {/* Logo — sits BEHIND the astronaut (z-10), in front of the window/
@@ -320,7 +320,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             className="relative aspect-[4304/676] w-[55%] max-w-[750px]"
             style={{ willChange: "transform, opacity" }}
           >
-            <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority />
+            <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 750px" />
           </div>
         </div>
 
@@ -336,7 +336,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "calc(-5% + 150px)",
           }}
         >
-          <Image src="/images/earth-3.png" alt="Astronaut looking out the window" fill className="object-cover object-top" />
+          <Image src="/images/earth-3.png" alt="Astronaut looking out the window" fill className="object-cover object-top" sizes="130vw" />
         </div>
       </div>
 
