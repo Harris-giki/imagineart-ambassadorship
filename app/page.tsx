@@ -2,11 +2,11 @@
  * ImagineArt Ambassador Program — landing page.
  *
  *   SiteNav (fixed)
- *   1. CinematicIntro      — pinned, scroll-scrubbed zoom + black-out intro.
- *   2. AmbassadorHero      — revealed as the intro blacks out (headline block).
- *   3. AmbassadorHeroImage — depth-parallax hero panel (normal flow).
- *   4. AmbassadorSections  — What You Get → Who → What You Do → How It Works → Goals.
- *   5. FaqSection          — accordion + FAQPage JSON-LD.
+ *   1. HeroIntro           — desktop: preloader + pinned parallax intro → hero;
+ *                            mobile: hero directly, with the photo as background.
+ *   2. AmbassadorHeroImage — 3D-tilt hero photo card (desktop only).
+ *   3. AmbassadorWhatYouGet, ShowcaseScrollSection, AmbassadorSections
+ *   4. FaqSection          — accordion + FAQPage JSON-LD.
  *   SiteFooter
  *
  * Whole-page smooth scrolling is provided by <SmoothScroll> (Lenis) in the
@@ -19,9 +19,7 @@
 import { SiteNav } from "@/components/site/SiteNav"
 import { SiteFooter } from "@/components/site/SiteFooter"
 import { FaqSection } from "@/components/site/FaqSection"
-import CinematicIntro from "@/components/cinematic-intro"
-import IntroPreloader from "@/components/intro-preloader"
-import AmbassadorHero from "@/components/ambassador-hero"
+import HeroIntro from "@/components/hero-intro"
 import AmbassadorHeroImage from "@/components/ambassador-hero-image"
 import AmbassadorSections from "@/components/ambassador-sections"
 import AmbassadorWhatYouGet from "@/components/ambassador-what-you-get"
@@ -34,18 +32,16 @@ export default function Page() {
 
   return (
     <>
-      {/* Loader that lifts only once the parallax (intro) assets have loaded. */}
-      <IntroPreloader />
       <SiteNav />
-      {/* The hero lives INSIDE the intro: the black-out cross-fades straight
-          into it, then the pin releases onto it (no extra scroll). */}
-      <CinematicIntro>
-        <AmbassadorHero />
-      </CinematicIntro>
-      {/* The hero IMAGE lives here (normal flow, just after the pinned intro)
-          so it can scroll through the viewport and drive its 3D tilt.
-          Same jet-black surface as the hero → reads as one continuous hero. */}
-      <AmbassadorHeroImage />
+      {/* Desktop: preloader + pinned parallax intro → hero.
+          Mobile: no parallax — the hero shows directly with the photo as its
+          background. (Decided client-side inside HeroIntro.) */}
+      <HeroIntro />
+      {/* The big hero IMAGE card (3D tilt). Hidden on mobile, where the same
+          photo is already the hero background — avoids showing it twice. */}
+      <div className="hidden md:block">
+        <AmbassadorHeroImage />
+      </div>
       <AmbassadorWhatYouGet />
       {/* Pinned showcase comes right after "What You Get": headline holds still
           while images glide up over it. */}

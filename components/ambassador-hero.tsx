@@ -1,64 +1,87 @@
 "use client"
 
 /**
- * AmbassadorHero — the text block of the landing hero revealed when the
- * cinematic intro blacks out.
+ * AmbassadorHero — the hero text block ("COMMUNITY / AMBASSADORS").
  *
- * Background: seamless jet black (the page token) — the Earth/space image is
- * gone, so the intro's black-out resolves straight into the flat black page.
+ * Two presentations:
+ *   • Desktop (default): rendered INSIDE the cinematic intro as its cross-fade
+ *     reveal target — flat jet-black background (`withBackground=false`).
+ *   • Mobile: there is no parallax intro, so the hero is shown directly with
+ *     `withBackground` → the `imagineart-hero-amb` photo fills the hero behind a
+ *     dark scrim for legibility. (Wired up in <HeroIntro/>.)
  *
- * Headline: "COMMUNITY / AMBASSADORS" stacked on two lines, each auto-fitted to
- * fill the SAME fixed-width container (min(1100px, 90vw)). Because both lines
- * fill the same width, the longer word (AMBASSADORS) resolves to a smaller font
- * size automatically — the GREYO-style edge-to-edge look. See <FitText>.
- *
- * The large hero IMAGE lives in a sibling section (AmbassadorHeroImage) right
- * after the intro, so it can scroll through the viewport and drive its own
- * depth parallax. This block is intentionally one viewport tall (it's the
- * intro's cross-fade reveal target).
- *
+ * Headline: both lines auto-fit to the SAME fixed width (min(1100px, 90vw)) via
+ * <FitText>, so the longer word (AMBASSADORS) resolves smaller — GREYO look.
  * Dark surface → white-at-low-opacity text, per the design system.
  */
 
+import Image from "next/image"
 import { FitText } from "@/components/fit-text"
 
-// Shared width for the headline (and the image panel below it).
+// Shared width for the headline.
 const HERO_WIDTH = "min(1100px, 90vw)"
 
-export default function AmbassadorHero() {
+export default function AmbassadorHero({ withBackground = false }: { withBackground?: boolean }) {
   return (
     <section
       id="top"
       className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background text-center"
     >
-      {/* Eyebrow */}
-      <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[1.8px] text-white/55">
-        ImagineArt Ambassador Program
-      </span>
+      {/* Mobile background photo + legibility scrim (only when withBackground). */}
+      {withBackground && (
+        <>
+          <Image
+            src="/images/imagineart-hero-amb.png"
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          {/* Darken so the white headline stays readable over the photo. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.7) 100%)",
+            }}
+          />
+        </>
+      )}
 
-      {/* Fit-to-width stacked headline — both lines span HERO_WIDTH exactly. */}
-      <div className="mt-5" style={{ width: HERO_WIDTH }}>
-        <FitText
-          className="text-white"
-          style={{
-            fontWeight: 600,
-            letterSpacing: "-0.02em",
-            // Variable-font width axis (Google Sans Flex) → condensed grotesk feel.
-            fontStretch: "condensed",
-          }}
-        >
-          COMMUNITY
-        </FitText>
-        <FitText
-          className="-mt-[0.04em] text-white"
-          style={{
-            fontWeight: 600,
-            letterSpacing: "-0.01em",
-            fontStretch: "condensed",
-          }}
-        >
-          AMBASSADORS
-        </FitText>
+      {/* Content sits above the photo/scrim. */}
+      <div className="relative z-10 flex w-full flex-col items-center px-4">
+        {/* Eyebrow */}
+        <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[1.8px] text-white/55">
+          ImagineArt Ambassador Program
+        </span>
+
+        {/* Fit-to-width stacked headline — both lines span HERO_WIDTH exactly. */}
+        <div className="mt-5" style={{ width: HERO_WIDTH }}>
+          <FitText
+            className="text-white"
+            style={{
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              // Variable-font width axis (Google Sans Flex) → condensed grotesk feel.
+              fontStretch: "condensed",
+            }}
+          >
+            COMMUNITY
+          </FitText>
+          <FitText
+            className="-mt-[0.04em] text-white"
+            style={{
+              fontWeight: 600,
+              letterSpacing: "-0.01em",
+              fontStretch: "condensed",
+            }}
+          >
+            AMBASSADORS
+          </FitText>
+        </div>
       </div>
     </section>
   )
