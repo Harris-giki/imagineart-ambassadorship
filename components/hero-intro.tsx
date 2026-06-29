@@ -34,10 +34,13 @@ export default function HeroIntro() {
     return () => mq.removeEventListener("change", apply)
   }, [])
 
-  // Pre-decision: full-screen black so there's no flash before we know the
-  // viewport (matches the preloader and the dark hero).
+  // Pre-decision: a FIXED full-screen black cover (z-200, same as the loader)
+  // from the very first painted frame. Critical: the AmbassadorHeroImage card
+  // below has a negative top margin and would otherwise peek into the first
+  // screen and flash `imagineart-hero-amb` before the loader mounts. A fixed
+  // cover paints over everything, so there's no flash on either platform.
   if (mode === "pending") {
-    return <div className="h-screen w-full bg-background" aria-hidden="true" />
+    return <div className="fixed inset-0 z-[200] bg-background" aria-hidden="true" />
   }
 
   // Mobile: straight to the hero with the photo background, no parallax/loader.
