@@ -1,0 +1,203 @@
+"use client"
+
+/**
+ * AmbassadorWhatYouGet — the "What You Get" section, rebuilt as a services-style
+ * accordion (matching the supplied reference):
+ *
+ *   Header row: huge flush-left heading + short right-aligned description.
+ *   Below, two columns: a wireframe Globe on the LEFT, the accordion on the
+ *   RIGHT (each row: dots / Title / TAGLINE / chevron; click to expand).
+ *
+ * Behavior:
+ *   • One row open at a time (accordion); first row open by default.
+ *   • Row title highlights light purple on hover / when open (FAQ color).
+ *   • Expand/collapse animates height (grid-rows 0fr→1fr) + opacity ~300ms.
+ *   • prefers-reduced-motion → instant (motion-reduce:transition-none).
+ *   • The 5-dot indicator increments its filled count per row (decorative).
+ *
+ * Background is the seamless jet-black page token; rows are separated by
+ * hairline borders only (no fills, no grid texture).
+ * Uses only existing design tokens (background / border-primary / content-*),
+ * the shared container width, and the project fonts.
+ */
+
+import { useState } from "react"
+import { ChevronDown } from "lucide-react"
+import { Reveal } from "@/components/primitives/Reveal"
+import Globe from "@/components/globe"
+
+/* ---------- content -------------------------------------------------------- */
+
+type Item = { title: string; tagline: string; body: string }
+
+const ITEMS: Item[] = [
+  {
+    title: "Grow Your Local Scene",
+    tagline: "Meetups, Workshops, Hackathons",
+    body: "Bring the creators in your city together. We back you with event funding, ready-to-use content, swag, and promotion across ImagineArt's channels.",
+  },
+  {
+    title: "Create & Experiment",
+    tagline: "Live Demos, Prototypes, Credits",
+    body: "Stay sharp and teach from experience by running live demos, prototyping workflows, and sharing what you know. Get monthly ImagineArt credits to power your sessions.",
+  },
+  {
+    title: "Shape The Product",
+    tagline: "Early Access, Feedback Sessions",
+    body: "Bring your community's perspective straight to the ImagineArt team. Get pre-release features and a seat in feedback sessions that influence what we build next.",
+  },
+  {
+    title: "Connect & Contribute",
+    tagline: "Private Ambassador Network",
+    body: "Share what's working in your region and help shape how the program grows, through a private channel with fellow ambassadors and the ImagineArt team.",
+  },
+  {
+    title: "Get Recognized",
+    tagline: "Official Badge, Featured Profile",
+    body: "Wear a verified 'ImagineArt Ambassador' badge and get a featured profile across our community spaces.",
+  },
+]
+
+const DOT_COUNT = 5
+
+/* ---------- small parts ---------------------------------------------------- */
+
+/** Five dots, the first `filled` of them bright, the rest dimmed. */
+function Dots({ filled }: { filled: number }) {
+  return (
+    <span className="flex shrink-0 items-center gap-1.5" aria-hidden="true">
+      {Array.from({ length: DOT_COUNT }).map((_, i) => (
+        <span
+          key={i}
+          className={`h-[7px] w-[7px] rounded-full ${i < filled ? "bg-content-primary" : "bg-white/20"}`}
+        />
+      ))}
+    </span>
+  )
+}
+
+function AccordionRow({
+  item,
+  filled,
+  open,
+  onToggle,
+}: {
+  item: Item
+  filled: number
+  open: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div className="border-b border-border-primary">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="group flex w-full items-start gap-5 py-6 text-left md:gap-10"
+      >
+        {/* dots — aligned to the title line; hidden on very small screens */}
+        <span className="mt-1 hidden sm:block">
+          <Dots filled={filled} />
+        </span>
+
+        {/* title + tagline — title highlights light purple on hover / when open
+            (matches the FAQ open-state color) */}
+        <span className="min-w-0 flex-1">
+          <span
+            className={`block font-sans text-[18px] font-medium tracking-[-0.01em] transition-colors md:text-[19px] ${
+              open ? "text-[#C8AAFF]" : "text-content-primary group-hover:text-[#C8AAFF]"
+            }`}
+          >
+            {item.title}
+          </span>
+          <span className="mt-1.5 block font-mono text-[11px] font-medium uppercase tracking-[1.6px] text-content-tertiary">
+            {item.tagline}
+          </span>
+        </span>
+
+        {/* chevron — rotates when open */}
+        <ChevronDown
+          size={20}
+          strokeWidth={1.75}
+          className={`mt-1 shrink-0 text-content-secondary transition-transform duration-300 ease-out motion-reduce:transition-none ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* expanding body */}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          {/* left padding aligns the body with the title column (dots + gap) */}
+          <p className="max-w-[64ch] pb-7 font-sans text-[15.5px] leading-[1.72] text-content-secondary sm:pl-[calc(1.25rem+var(--dots-w))] md:pl-[calc(2.5rem+var(--dots-w))]">
+            {item.body}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- section -------------------------------------------------------- */
+
+export default function AmbassadorWhatYouGet() {
+  // Single open row at a time; first row open by default.
+  const [openIndex, setOpenIndex] = useState(0)
+
+  return (
+    <section
+      id="what-you-get"
+      className="relative bg-background"
+      // width of the dots cluster, used to indent the expanded body text
+      style={{ ["--dots-w" as string]: "59px" }}
+    >
+      <div className="container-page relative py-16 md:py-24">
+        {/* header row */}
+        <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
+          <h2
+            className="font-display uppercase leading-[0.9] tracking-[-0.02em] text-content-primary"
+            style={{ fontSize: "clamp(48px, 9vw, 132px)", fontWeight: 600, fontStretch: "condensed" }}
+          >
+            What You Get
+          </h2>
+          <p className="max-w-[34ch] font-sans text-[14px] leading-[1.6] text-content-secondary md:pt-2 md:text-right">
+            The ImagineArt Community Ambassadors program gives you everything you need to create a
+            thriving community of creators in your city.
+          </p>
+        </Reveal>
+
+        {/* two columns: globe on the left, accordion on the right */}
+        <div className="mt-12 flex flex-col gap-12 md:mt-16 lg:flex-row lg:items-start lg:gap-16">
+          {/* LEFT — just the globe (sticky so it stays in view while the list
+              scrolls). Hidden on small screens where there's no side column. */}
+          <div className="hidden lg:block lg:w-[42%] lg:shrink-0">
+            <div className="sticky top-24">
+              <div className="mx-auto aspect-square w-full max-w-[460px]">
+                <Globe />
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT — the accordion + learn more link */}
+          <div className="min-w-0 flex-1">
+            <Reveal className="border-t border-border-primary">
+              {ITEMS.map((item, i) => (
+                <AccordionRow
+                  key={item.title}
+                  item={item}
+                  filled={i + 1}
+                  open={openIndex === i}
+                  onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
+                />
+              ))}
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

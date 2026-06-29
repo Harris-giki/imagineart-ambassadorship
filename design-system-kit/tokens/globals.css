@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---------- Primitives — purple accent ramp (#8A3FFC base) ---------- */
+  --color-primary-10: rgb(243 237 255);
+  --color-primary-20: rgb(230 217 255);
+  --color-primary-30: rgb(202 178 254);
+  --color-primary-40: rgb(176 137 253);
+  --color-primary-50: rgb(155 96 253);
+  --color-primary-60: rgb(138 63 252);     /* #8A3FFC, accent */
+  --color-primary-70: rgb(112 42 214);
+  --color-primary-80: rgb(86 30 166);
+  --color-primary-90: rgb(58 20 110);
+  --color-primary-100: rgb(28 10 52);
+
+  --color-neutral-10: rgb(247 247 247);
+  --color-neutral-20: rgb(237 237 237);
+  --color-neutral-30: rgb(224 224 224);
+  --color-neutral-40: rgb(209 209 209);
+  --color-neutral-50: rgb(189 189 189);
+  --color-neutral-60: rgb(87 87 87);
+  --color-neutral-70: rgb(61 61 61);
+  --color-neutral-80: rgb(41 41 41);
+  --color-neutral-90: rgb(33 33 33);
+  --color-neutral-100: rgb(23 23 23);     /* #171717 */
+  --color-neutral-110: rgb(15 15 15);     /* #0F0F0F */
+
+  /* Secondary accent (purple) */
+  --color-accent: rgb(138 63 252);   /* #8A3FFC */
+
+  /* Accent gradient endpoints (light purple -> accent) */
+  --color-brand-from: #a874ff;
+  --color-brand-to: #7a2ef0;
+
+  /* ---------- Semantic tokens (light theme) ---------- */
+  --color-background: rgb(255 255 255);
+  --color-content-primary: rgb(23 23 23);
+  --color-content-secondary: rgb(87 87 87);
+  --color-content-tertiary: rgb(0 0 0 / 0.5);
+  --color-content-brand: rgb(112 42 214);
+
+  --color-surface-primary: rgb(250 250 250);
+  --color-surface-secondary: rgb(240 240 240);
+  --color-surface-tertiary: rgb(230 230 230);
+
+  --color-fill-brand: rgb(138 63 252);
+  --color-fill-brand-hover: rgb(112 42 214);
+
+  --color-border-primary: rgb(0 0 0 / 0.08);
+  --color-border-secondary: rgb(0 0 0 / 0.12);
+  --color-border-tertiary: rgb(0 0 0 / 0.2);
+  --color-border-brand: rgb(138 63 252);
+
+  /* ---------- Fonts (variable wired via next/font in layout.tsx) ---------- */
+  --font-sans: var(--font-google-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-google-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  /* ---------- Type scale ---------- */
+  --text-display-md: 72px;
+  --text-display-md--line-height: 84px;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-display-sm: 60px;
+  --text-display-sm--line-height: 72px;
+  --text-display-sm--letter-spacing: -0.01em;
+  --text-display-xs: 48px;
+  --text-display-xs--line-height: 56px;
+
+  --text-heading-2xl: 40px;
+  --text-heading-2xl--line-height: 48px;
+  --text-heading-xl: 36px;
+  --text-heading-xl--line-height: 44px;
+  --text-heading-lg: 32px;
+  --text-heading-lg--line-height: 40px;
+  --text-heading-md: 28px;
+  --text-heading-md--line-height: 36px;
+  --text-heading-sm: 24px;
+  --text-heading-sm--line-height: 32px;
+  --text-heading-xs: 20px;
+  --text-heading-xs--line-height: 24px;
+
+  --text-body-xl: 20px;
+  --text-body-xl--line-height: 28px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-xs: 12px;
+  --text-body-xs--line-height: 16px;
+
+  --radius-2: 8px;
+  --radius-3: 12px;
+  --radius-4: 16px;
+  --radius-5: 20px;
+  --radius-6: 24px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 96px;
+  }
+  section[id],
+  #install {
+    scroll-margin-top: 96px;
+  }
+  body {
+    position: relative;
+    background: var(--color-background);
+    color: var(--color-content-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-body-md);
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* clip (not hidden) avoids creating a scroll container, which would
+       break position: sticky used by the toolset card stack. */
+    overflow-x: clip;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  ::selection {
+    background: rgb(138 63 252 / 0.22);
+    color: rgb(23 23 23);
+  }
+}
+
+@layer utilities {
+  /* Reusable brand gradient — single source of truth for the accent gradient */
+  .bg-brand-gradient {
+    background-image: linear-gradient(135deg, var(--color-brand-from) 0%, var(--color-brand-to) 100%);
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(135deg, var(--color-brand-from) 0%, var(--color-brand-to) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .container-page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+  }
+  @media (max-width: 768px) {
+    .container-page {
+      padding: 0 20px;
+    }
+  }
+
+  /* Reveal */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 32px, 0);
+    filter: blur(6px);
+    transition:
+      opacity 820ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 820ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 820ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform, filter;
+  }
+  .reveal-left {
+    transform: translate3d(-56px, 0, 0);
+  }
+  .reveal-right {
+    transform: translate3d(56px, 0, 0);
+  }
+  .reveal-down {
+    transform: translate3d(0, -32px, 0);
+  }
+  .reveal-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: none;
+  }
+
+  /* Hide scrollbar cross-browser */
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Team cards — consistent widths regardless of the full-bleed track */
+  .team-card-item {
+    flex: 0 0 clamp(300px, 84vw, 440px);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  /* Full-bleed horizontal scroller: runs edge-to-edge but the first card
+     aligns with the page container gutter (matches .container-page). */
+  .bleed-scroller {
+    padding-left: 20px;
+    padding-right: 20px;
+    scroll-padding-left: 20px;
+  }
+  @media (min-width: 769px) {
+    .bleed-scroller {
+      padding-left: max(32px, calc((100vw - 1240px) / 2 + 32px));
+      padding-right: max(32px, calc((100vw - 1240px) / 2 + 32px));
+      scroll-padding-left: max(32px, calc((100vw - 1240px) / 2 + 32px));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-visible {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+  }
+
+  .animate-tool-slide-up {
+    animation: tool-slide-up 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+
+  .animate-word-in {
+    display: inline-block;
+    animation: word-in 0.22s ease forwards;
+  }
+
+  .animate-marquee {
+    animation: marquee 38s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee { animation: none; }
+  }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes tool-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobileMenuIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-30px); }
+}
+
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(25px); }
+}
+
+/* Small translate range keeps the warm wash drifting subtly; a modest scale
+   (>= 1 + translateX%/50) is enough to keep both edges covered without the
+   560px radial circle blowing up to fill the viewport with flat color. */
+@keyframes hero-glow-drift {
+  0%   { transform: translate3d(-5%, -2%, 0) scale(1.12); }
+  50%  { transform: translate3d(5%, 6%, 0) scale(1.18); }
+  100% { transform: translate3d(-5%, -2%, 0) scale(1.12); }
+}
+
+.hero-glow {
+  animation: hero-glow-drift 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow { animation: none; }
+}
