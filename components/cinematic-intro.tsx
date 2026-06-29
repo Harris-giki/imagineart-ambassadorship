@@ -64,6 +64,48 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   const frameRef = useRef<number | null>(null)
   const lastUpdateRef = useRef<number>(0)
 
+  // ---- Preloader sync -----------------------------------------------------
+  // The IntroPreloader covers the screen until THESE images (the parallax
+  // assets, and only these) finish loading. Each image's onLoad/onError bumps
+  // a counter; we broadcast progress so the preloader can show a bar and lift.
+  // `revealed` then starts the entry animation exactly as the curtain lifts,
+  // so the zoom never plays hidden behind the loader.
+  const INTRO_ASSET_COUNT = 5
+  const [revealed, setRevealed] = useState(false)
+
+  // Recompute progress from the ACTUAL <img> state inside the scene (rather
+  // than counting onLoad calls) so already-cached images — whose load event
+  // can fire before React attaches the handler — are still counted.
+  const reportProgress = () => {
+    const scene = sceneRef.current
+    if (!scene) return
+    const imgs = Array.from(scene.querySelectorAll("img")) as HTMLImageElement[]
+    const total = imgs.length || INTRO_ASSET_COUNT
+    const loaded = imgs.filter((im) => im.complete && im.naturalWidth > 0).length
+    window.dispatchEvent(new CustomEvent("intro-progress", { detail: { loaded, total } }))
+    if (total > 0 && loaded >= total) setRevealed(true)
+  }
+  const handleAssetLoad = reportProgress
+
+  // Catch images already complete at mount (cache), then a 7s safety net so a
+  // slow/failed network never blocks the reveal forever.
+  useEffect(() => {
+    const raf = requestAnimationFrame(reportProgress)
+    const safety = window.setTimeout(() => {
+      setRevealed(true)
+      window.dispatchEvent(
+        new CustomEvent("intro-progress", {
+          detail: { loaded: INTRO_ASSET_COUNT, total: INTRO_ASSET_COUNT },
+        }),
+      )
+    }, 7000)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(safety)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ---- Phase 2 refs (elements GSAP owns) ----------------------------------
   const rootRef = useRef<HTMLDivElement>(null) // pinned section / scroll trigger
   const sceneRef = useRef<HTMLDivElement>(null) // wraps all scene layers -> zooms
@@ -260,7 +302,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
       >
         {/* Earth — deepest background layer */}
         <div
-          className={`absolute inset-0 ${shouldAnimate ? "zoom-layer-1" : ""}`}
+          className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
           style={{
             transform: `translate3d(${mousePosition.x * 30}px, ${mousePosition.y * 30}px, 0)`,
             willChange: "transform",
@@ -270,12 +312,12 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "-15%",
           }}
         >
-          <Image src="/images/earth-1.png" alt="Earth from space" fill className="object-cover" priority sizes="130vw" />
+          <Image src="/images/earth-1.png" alt="Earth from space" fill className="object-cover" priority sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
 
         {/* Orbital station */}
         <div
-          className={`absolute z-5 ${shouldAnimate ? "zoom-layer-starship" : ""}`}
+          className={`absolute z-5 ${shouldAnimate && revealed ? "zoom-layer-starship" : ""}`}
           style={{
             transform: `translate3d(${mousePosition.x * 50}px, ${mousePosition.y * 50}px, 0) scale(0.75)`,
             willChange: "transform",
@@ -285,12 +327,12 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "20px",
           }}
         >
-          <Image src="/images/starship_earth.png" alt="Space station" fill className="object-contain" sizes="130vw" />
+          <Image src="/images/starship_earth.png" alt="Space station" fill className="object-contain" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
 
         {/* Spacecraft window frame (centered) */}
         <div
-          className={`absolute inset-0 z-10 ${shouldAnimate ? "zoom-layer-2" : ""}`}
+          className={`absolute inset-0 z-10 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
           style={{
             transform: `translate3d(${mousePosition.x * 60}px, ${mousePosition.y * 60}px, 0)`,
             willChange: "transform",
@@ -300,7 +342,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "-15%",
           }}
         >
-          <Image src="/images/earth-2.png" alt="Spacecraft interior window" fill className="object-contain object-center" sizes="130vw" />
+          <Image src="/images/earth-2.png" alt="Spacecraft interior window" fill className="object-contain object-center" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
 
         {/* Logo — sits BEHIND the astronaut (z-10), in front of the window/
@@ -308,7 +350,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             element (logoInnerRef) = what GSAP fades + scales on scroll, so the
             parallax and GSAP never touch the same element's transform. */}
         <div
-          className={`absolute inset-0 z-10 flex items-center justify-center px-6 ${shouldAnimate ? "zoom-layer-text" : ""}`}
+          className={`absolute inset-0 z-10 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
           style={{
             transform: `translate3d(${mousePosition.x * 90}px, ${mousePosition.y * 90}px, 0)`,
             willChange: "transform",
@@ -320,13 +362,13 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             className="relative aspect-[4304/676] w-[55%] max-w-[750px]"
             style={{ willChange: "transform, opacity" }}
           >
-            <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 750px" />
+            <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 750px" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
         </div>
 
         {/* Astronaut — foreground */}
         <div
-          className={`absolute inset-0 z-20 ${shouldAnimate ? "zoom-layer-3" : ""}`}
+          className={`absolute inset-0 z-20 ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
           style={{
             transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0) scale(0.75)`,
             willChange: "transform",
@@ -336,7 +378,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             top: "calc(-5% + 150px)",
           }}
         >
-          <Image src="/images/earth-3.png" alt="Astronaut looking out the window" fill className="object-cover object-top" sizes="130vw" />
+          <Image src="/images/earth-3.png" alt="Astronaut looking out the window" fill className="object-cover object-top" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
       </div>
 

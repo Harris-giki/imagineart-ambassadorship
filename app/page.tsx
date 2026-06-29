@@ -20,6 +20,7 @@ import { SiteNav } from "@/components/site/SiteNav"
 import { SiteFooter } from "@/components/site/SiteFooter"
 import { FaqSection } from "@/components/site/FaqSection"
 import CinematicIntro from "@/components/cinematic-intro"
+import IntroPreloader from "@/components/intro-preloader"
 import AmbassadorHero from "@/components/ambassador-hero"
 import AmbassadorHeroImage from "@/components/ambassador-hero-image"
 import AmbassadorSections from "@/components/ambassador-sections"
@@ -33,6 +34,8 @@ export default function Page() {
 
   return (
     <>
+      {/* Loader that lifts only once the parallax (intro) assets have loaded. */}
+      <IntroPreloader />
       <SiteNav />
       {/* The hero lives INSIDE the intro: the black-out cross-fades straight
           into it, then the pin releases onto it (no extra scroll). */}
