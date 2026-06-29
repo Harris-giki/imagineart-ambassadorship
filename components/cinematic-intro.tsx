@@ -215,6 +215,11 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             scrub: 0.4, // light smoothing — low lag so the scene never trails past the reveal
             anticipatePin: 1, // avoid a 1-frame jump when the pin engages
             invalidateOnRefresh: true, // recompute on resize -> origin stays centered
+            // This pin is at the TOP of the page, so it must refresh BEFORE the
+            // showcase pin below it (which is created earlier, on first mount).
+            // Higher refreshPriority = refreshed first, so the showcase then
+            // measures its start with this pin's spacing already applied.
+            refreshPriority: 1,
           },
         })
 

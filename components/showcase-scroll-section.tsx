@@ -111,6 +111,10 @@ export default function ShowcaseScrollSection({ images }: { images: ShowcaseImag
             scrub: true,
             anticipatePin: 1,
             invalidateOnRefresh: true, // recompute vh/height values on resize
+            // Lower than the intro pin (refreshPriority 1) so the intro refreshes
+            // first and this pin's start is measured with the intro's pin spacing
+            // already in place — otherwise it pins early, over "What You Get".
+            refreshPriority: 0,
           },
         })
 
