@@ -134,12 +134,7 @@ export function SiteFooter() {
       {/* Bottom bar */}
       <div className="relative z-10 max-w-[1240px] mx-auto px-5 md:px-10 pb-6 md:pb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-5 pb-2 border-t border-white/[0.06] flex-wrap">
-          <div className="flex items-center gap-0.5 flex-wrap">
-            <span className="text-[12px] text-white/25">
-              © 2026 <strong className="font-semibold">ImagineArt, Vyro AI</strong>. All rights reserved.
-            </span>
-          </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 sm:ml-auto">
             {SOCIALS.map((s) => (
               <a
                 key={s.title}
