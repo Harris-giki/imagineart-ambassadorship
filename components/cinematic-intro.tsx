@@ -6,7 +6,7 @@
  * Scene: a studio group shot rebuilt as parallax depth layers — a backdrop
  * plate (background.png) with four extracted people (person1–4) full-bleed on
  * top, each PNG a full-frame 16:9 canvas so they auto-register into the original
- * composition, plus the ImagineArt logo as a mid brand beat.
+ * composition. (No logo overlay — the resting frame is the exact photo.)
  *
  * Two behaviors layered on the SAME scene, kept strictly separate so they
  * never fight over a CSS property:
@@ -22,7 +22,6 @@
  *  PHASE 2 — scroll-driven transition (added on top, GSAP ScrollTrigger):
  *    The section is PINNED and a timeline is SCRUBBED 1:1 to scroll:
  *      • 0.0–0.7  scene zooms toward screen CENTER, scale 1 -> ZOOM (ease-in)
- *      • 0.0–0.2  logo fades + scales out (opacity 1->0, scale 1->1.4)
  *      • 0.6–1.0  black overlay fades in (opacity 0->1)
  *    At full black the pin releases and the (dark) Ambassador hero below is
  *    revealed seamlessly; scrolling is 100% normal afterward.
@@ -32,8 +31,7 @@
  *
  * Why no conflict between the two phases:
  *   - GSAP only writes `transform`/`opacity` on three elements it OWNS:
- *       sceneRef (the zoom wrapper), logoInnerRef (the fading logo), and
- *       overlayRef (the black-out).
+ *       sceneRef (the zoom wrapper) and overlayRef (the black-out).
  *   - The per-layer mouse/gyro parallax writes `transform: translate3d(...)`
  *       on the LAYER elements (children of sceneRef) and on the logo's OUTER
  *       wrapper — never on the elements GSAP owns.
@@ -75,7 +73,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   // a counter; we broadcast progress so the preloader can show a bar and lift.
   // `revealed` then starts the entry animation exactly as the curtain lifts,
   // so the zoom never plays hidden behind the loader.
-  const INTRO_ASSET_COUNT = 6 // background + 4 people + logo
+  const INTRO_ASSET_COUNT = 5 // background + 4 people (logo removed)
   const [revealed, setRevealed] = useState(false)
 
   // Recompute progress from the ACTUAL <img> state inside the scene (rather
@@ -114,7 +112,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   // ---- Phase 2 refs (elements GSAP owns) ----------------------------------
   const rootRef = useRef<HTMLDivElement>(null) // pinned section / scroll trigger
   const sceneRef = useRef<HTMLDivElement>(null) // wraps all scene layers -> zooms
-  const logoInnerRef = useRef<HTMLDivElement>(null) // the logo image -> fades + scales
   const overlayRef = useRef<HTMLDivElement>(null) // black-out overlay -> fades in
   const heroRef = useRef<HTMLDivElement>(null) // hero reveal layer -> cross-fades in
 
@@ -237,13 +234,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         //    never scale enough to look pixelated). 0.0 -> 0.65.
         tl.fromTo(sceneRef.current, { scale: 1 }, { scale: zoom, ease: "power1.in", duration: 0.65 }, 0)
 
-        // 2) Logo fades + scales out early: 0.0 -> 0.2.
-        tl.fromTo(
-          logoInnerRef.current,
-          { autoAlpha: 1, scale: 1 },
-          { autoAlpha: 0, scale: 1.4, ease: "power1.out", duration: 0.2 },
-          0,
-        )
+        // (Logo removed from the scene — no logo tween.)
 
         // 3) Black overlay fades IN to fully cover the scene: 0.3 -> 0.6.
         tl.fromTo(overlayRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 0.3)
@@ -320,112 +311,71 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
           style={{ width: "min(100vw, calc(100vh * 16 / 9))", aspectRatio: "16 / 9" }}
         >
           {/* Every layer is a full-frame 16:9 PNG with its subject already in
-              position, so all share the SAME sizing (104% = tiny parallax
-              margin, centered via -2% offsets, object-cover). That auto-registers
-              them into the original composition; only z-index, parallax
-              multiplier and entry animation differ per depth (bigger = closer =
-              moves more). */}
+              position. All layers are IDENTICAL geometry — inset-0, 100%, NO
+              offset, NO oversize, object-contain — so at rest (mouse centered)
+              they composite back into the EXACT original photo. Only z-index,
+              a TINY parallax multiplier, and the entry animation differ per
+              depth (bigger multiplier = closer = moves a hair more). The subtle
+              parallax is a depth nudge, never a reframing. */}
 
           {/* 1. Backdrop — deepest layer (studio plate) */}
           <div
-            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
+            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
             style={{
               zIndex: 0,
-              transform: `translate3d(${mousePosition.x * 25}px, ${mousePosition.y * 25}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 4}px, ${mousePosition.y * 4}px, 0)`,
               willChange: "transform",
-              width: "104%",
-              height: "104%",
-              left: "-2%",
-              top: "-2%",
             }}
           >
-            <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-contain" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
           {/* 2. Person 1 — center-back (holographic umbrella) */}
           <div
-            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
             style={{
               zIndex: 10,
-              transform: `translate3d(${mousePosition.x * 55}px, ${mousePosition.y * 55}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 7}px, ${mousePosition.y * 7}px, 0)`,
               willChange: "transform",
-              width: "104%",
-              height: "104%",
-              left: "-2%",
-              top: "-2%",
             }}
           >
-            <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 3. Logo — mid brand beat (behind the front people, above the
-              backdrop). OUTER wrapper = parallax translate + entry animation;
-              INNER element (logoInnerRef) = what GSAP fades + scales on scroll,
-              so the parallax and GSAP never write the same element's transform. */}
+          {/* 3. Person 4 — left (green sweater, jacket over shoulder) */}
           <div
-            className={`absolute inset-0 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
-            style={{
-              zIndex: 12,
-              transform: `translate3d(${mousePosition.x * 90}px, ${mousePosition.y * 90}px, 0)`,
-              willChange: "transform",
-              perspective: "1000px",
-            }}
-          >
-            <div
-              ref={logoInnerRef}
-              className="relative aspect-[4304/676] w-[55%] max-w-[620px]"
-              style={{ willChange: "transform, opacity" }}
-            >
-              <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 620px" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-            </div>
-          </div>
-
-          {/* 4. Person 4 — left (green sweater, jacket over shoulder) */}
-          <div
-            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
             style={{
               zIndex: 15,
-              transform: `translate3d(${mousePosition.x * 70}px, ${mousePosition.y * 70}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 9}px, ${mousePosition.y * 9}px, 0)`,
               willChange: "transform",
-              width: "104%",
-              height: "104%",
-              left: "-2%",
-              top: "-2%",
             }}
           >
-            <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 5. Person 3 — right (blue umbrella raised) */}
+          {/* 4. Person 3 — right (blue umbrella raised) */}
           <div
-            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
             style={{
               zIndex: 16,
-              transform: `translate3d(${mousePosition.x * 85}px, ${mousePosition.y * 85}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 11}px, ${mousePosition.y * 11}px, 0)`,
               willChange: "transform",
-              width: "104%",
-              height: "104%",
-              left: "-2%",
-              top: "-2%",
             }}
           >
-            <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 6. Person 2 — crouching, front, closest to camera (dramatic pop) */}
+          {/* 5. Person 2 — crouching, front, closest to camera */}
           <div
-            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
+            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
             style={{
               zIndex: 20,
-              transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 16}px, ${mousePosition.y * 16}px, 0)`,
               willChange: "transform",
-              width: "104%",
-              height: "104%",
-              left: "-2%",
-              top: "-2%",
             }}
           >
-            <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-contain" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
         </div>
       </div>
@@ -443,83 +393,45 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
           it IN to cover the scene, then OUT to reveal the hero beneath it. */}
       <div ref={overlayRef} className="absolute inset-0 z-40 bg-black opacity-0" style={{ willChange: "opacity" }} aria-hidden="true" />
 
-      {/* Entry animation keyframes (Phase 1) — unchanged from the original. */}
+      {/* Entry animation keyframes (Phase 1) — GENTLE: every layer starts near
+          scale 1 and settles to the exact composite (scale 1 / opacity 1), so
+          the resting frame is pixel-faithful to the reference. Deeper layers
+          settle from slightly less zoom; the front figure from a touch more. */}
       <style jsx>{`
         .zoom-layer-1 {
-          animation: zoomOut1 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .zoom-layer-starship {
-          animation: zoomOutStarship 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: zoomOut1 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .zoom-layer-2 {
-          animation: zoomOut2 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: zoomOut2 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .zoom-layer-3 {
-          animation: zoomOut3 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .zoom-layer-text {
-          animation: zoomOutText 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: zoomOut3 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         @keyframes zoomOut1 {
           0% {
-            scale: 1.3;
+            scale: 1.08;
+            opacity: 0;
           }
           100% {
             scale: 1;
-          }
-        }
-        @keyframes zoomOutStarship {
-          0% {
-            scale: 1.5;
-          }
-          100% {
-            scale: 0.75;
+            opacity: 1;
           }
         }
         @keyframes zoomOut2 {
           0% {
-            scale: 2.5;
-            filter: blur(20px);
-          }
-          50% {
-            filter: blur(10px);
+            scale: 1.12;
+            opacity: 0;
           }
           100% {
             scale: 1;
-            filter: blur(0px);
+            opacity: 1;
           }
         }
         @keyframes zoomOut3 {
           0% {
-            scale: 8;
-            filter: blur(40px);
+            scale: 1.2;
             opacity: 0;
-          }
-          30% {
-            filter: blur(25px);
-            opacity: 0.3;
-          }
-          70% {
-            filter: blur(10px);
-            opacity: 0.7;
-          }
-          100% {
-            scale: 1;
-            filter: blur(0px);
-            opacity: 1;
-          }
-        }
-        @keyframes zoomOutText {
-          0% {
-            scale: 3.5;
-            opacity: 0;
-          }
-          40% {
-            opacity: 0.3;
-          }
-          70% {
-            opacity: 0.7;
           }
           100% {
             scale: 1;
