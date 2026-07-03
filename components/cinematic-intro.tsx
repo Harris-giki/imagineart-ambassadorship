@@ -310,113 +310,123 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         className="absolute inset-0"
         style={{ transformOrigin: "50% 50%", willChange: "transform" }}
       >
-        {/* NOTE: every layer is a full-frame 16:9 PNG with the subject already
-            in its correct position, so all layers share the SAME full-bleed
-            sizing (oversized 120%, centered via -10% offsets, object-cover).
-            That auto-registers them into the original group composition; only
-            z-index, parallax multiplier and entry animation differ per depth.
-            Bigger multiplier = closer = moves more. */}
-
-        {/* 1. Backdrop — deepest layer (studio plate) */}
+        {/* 16:9 STAGE — the assets are a 16:9 composition, so we show them in a
+            centered 16:9 box (the largest that fits the viewport). This displays
+            the FULL group/backdrop like the reference instead of cropping the
+            headroom + floor, and the dark image edges letterbox seamlessly on
+            wide screens. overflow-hidden clips the small parallax oversize. */}
         <div
-          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
-          style={{
-            zIndex: 0,
-            transform: `translate3d(${mousePosition.x * 25}px, ${mousePosition.y * 25}px, 0)`,
-            willChange: "transform",
-            width: "120%",
-            height: "120%",
-            left: "-10%",
-            top: "-10%",
-          }}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+          style={{ width: "min(100vw, calc(100vh * 16 / 9))", aspectRatio: "16 / 9" }}
         >
-          <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-cover" priority sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-        </div>
+          {/* Every layer is a full-frame 16:9 PNG with its subject already in
+              position, so all share the SAME sizing (104% = tiny parallax
+              margin, centered via -2% offsets, object-cover). That auto-registers
+              them into the original composition; only z-index, parallax
+              multiplier and entry animation differ per depth (bigger = closer =
+              moves more). */}
 
-        {/* 2. Person 1 — center-back (holographic umbrella) */}
-        <div
-          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
-          style={{
-            zIndex: 10,
-            transform: `translate3d(${mousePosition.x * 55}px, ${mousePosition.y * 55}px, 0)`,
-            willChange: "transform",
-            width: "120%",
-            height: "120%",
-            left: "-10%",
-            top: "-10%",
-          }}
-        >
-          <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-        </div>
-
-        {/* 3. Logo — mid brand beat (behind the front people, above the backdrop).
-            OUTER wrapper = parallax translate + entry animation; INNER element
-            (logoInnerRef) = what GSAP fades + scales on scroll, so the parallax
-            and GSAP never write the same element's transform. */}
-        <div
-          className={`absolute inset-0 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
-          style={{
-            zIndex: 12,
-            transform: `translate3d(${mousePosition.x * 90}px, ${mousePosition.y * 90}px, 0)`,
-            willChange: "transform",
-            perspective: "1000px",
-          }}
-        >
+          {/* 1. Backdrop — deepest layer (studio plate) */}
           <div
-            ref={logoInnerRef}
-            className="relative aspect-[4304/676] w-[55%] max-w-[750px]"
-            style={{ willChange: "transform, opacity" }}
+            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
+            style={{
+              zIndex: 0,
+              transform: `translate3d(${mousePosition.x * 25}px, ${mousePosition.y * 25}px, 0)`,
+              willChange: "transform",
+              width: "104%",
+              height: "104%",
+              left: "-2%",
+              top: "-2%",
+            }}
           >
-            <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 750px" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
-        </div>
 
-        {/* 4. Person 4 — left (green sweater, jacket over shoulder) */}
-        <div
-          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
-          style={{
-            zIndex: 15,
-            transform: `translate3d(${mousePosition.x * 70}px, ${mousePosition.y * 70}px, 0)`,
-            willChange: "transform",
-            width: "120%",
-            height: "120%",
-            left: "-10%",
-            top: "-10%",
-          }}
-        >
-          <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-        </div>
+          {/* 2. Person 1 — center-back (holographic umbrella) */}
+          <div
+            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            style={{
+              zIndex: 10,
+              transform: `translate3d(${mousePosition.x * 55}px, ${mousePosition.y * 55}px, 0)`,
+              willChange: "transform",
+              width: "104%",
+              height: "104%",
+              left: "-2%",
+              top: "-2%",
+            }}
+          >
+            <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          </div>
 
-        {/* 5. Person 3 — right (blue umbrella raised) */}
-        <div
-          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
-          style={{
-            zIndex: 16,
-            transform: `translate3d(${mousePosition.x * 85}px, ${mousePosition.y * 85}px, 0)`,
-            willChange: "transform",
-            width: "120%",
-            height: "120%",
-            left: "-10%",
-            top: "-10%",
-          }}
-        >
-          <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-        </div>
+          {/* 3. Logo — mid brand beat (behind the front people, above the
+              backdrop). OUTER wrapper = parallax translate + entry animation;
+              INNER element (logoInnerRef) = what GSAP fades + scales on scroll,
+              so the parallax and GSAP never write the same element's transform. */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
+            style={{
+              zIndex: 12,
+              transform: `translate3d(${mousePosition.x * 90}px, ${mousePosition.y * 90}px, 0)`,
+              willChange: "transform",
+              perspective: "1000px",
+            }}
+          >
+            <div
+              ref={logoInnerRef}
+              className="relative aspect-[4304/676] w-[55%] max-w-[620px]"
+              style={{ willChange: "transform, opacity" }}
+            >
+              <Image src="/images/ImagineArt.png" alt="ImagineArt" fill className="object-contain" priority sizes="(max-width: 768px) 55vw, 620px" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            </div>
+          </div>
 
-        {/* 6. Person 2 — crouching, front, closest to camera (dramatic pop) */}
-        <div
-          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
-          style={{
-            zIndex: 20,
-            transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0)`,
-            willChange: "transform",
-            width: "120%",
-            height: "120%",
-            left: "-10%",
-            top: "-10%",
-          }}
-        >
-          <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          {/* 4. Person 4 — left (green sweater, jacket over shoulder) */}
+          <div
+            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            style={{
+              zIndex: 15,
+              transform: `translate3d(${mousePosition.x * 70}px, ${mousePosition.y * 70}px, 0)`,
+              willChange: "transform",
+              width: "104%",
+              height: "104%",
+              left: "-2%",
+              top: "-2%",
+            }}
+          >
+            <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          </div>
+
+          {/* 5. Person 3 — right (blue umbrella raised) */}
+          <div
+            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            style={{
+              zIndex: 16,
+              transform: `translate3d(${mousePosition.x * 85}px, ${mousePosition.y * 85}px, 0)`,
+              willChange: "transform",
+              width: "104%",
+              height: "104%",
+              left: "-2%",
+              top: "-2%",
+            }}
+          >
+            <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-cover" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          </div>
+
+          {/* 6. Person 2 — crouching, front, closest to camera (dramatic pop) */}
+          <div
+            className={`absolute ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
+            style={{
+              zIndex: 20,
+              transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0)`,
+              willChange: "transform",
+              width: "104%",
+              height: "104%",
+              left: "-2%",
+              top: "-2%",
+            }}
+          >
+            <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          </div>
         </div>
       </div>
 
