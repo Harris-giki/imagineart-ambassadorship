@@ -3,6 +3,11 @@
 /**
  * CinematicIntro
  * =========================================================================
+ * Scene: a studio group shot rebuilt as parallax depth layers — a backdrop
+ * plate (background.png) with four extracted people (person1–4) full-bleed on
+ * top, each PNG a full-frame 16:9 canvas so they auto-register into the original
+ * composition, plus the ImagineArt logo as a mid brand beat.
+ *
  * Two behaviors layered on the SAME scene, kept strictly separate so they
  * never fight over a CSS property:
  *
@@ -70,7 +75,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   // a counter; we broadcast progress so the preloader can show a bar and lift.
   // `revealed` then starts the entry animation exactly as the curtain lifts,
   // so the zoom never plays hidden behind the loader.
-  const INTRO_ASSET_COUNT = 5
+  const INTRO_ASSET_COUNT = 6 // background + 4 people + logo
   const [revealed, setRevealed] = useState(false)
 
   // Recompute progress from the ACTUAL <img> state inside the scene (rather
@@ -305,58 +310,53 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         className="absolute inset-0"
         style={{ transformOrigin: "50% 50%", willChange: "transform" }}
       >
-        {/* Earth — deepest background layer */}
+        {/* NOTE: every layer is a full-frame 16:9 PNG with the subject already
+            in its correct position, so all layers share the SAME full-bleed
+            sizing (oversized 120%, centered via -10% offsets, object-cover).
+            That auto-registers them into the original group composition; only
+            z-index, parallax multiplier and entry animation differ per depth.
+            Bigger multiplier = closer = moves more. */}
+
+        {/* 1. Backdrop — deepest layer (studio plate) */}
         <div
-          className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
+          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
           style={{
-            transform: `translate3d(${mousePosition.x * 30}px, ${mousePosition.y * 30}px, 0)`,
+            zIndex: 0,
+            transform: `translate3d(${mousePosition.x * 25}px, ${mousePosition.y * 25}px, 0)`,
             willChange: "transform",
-            width: "130%",
-            height: "130%",
-            left: "-15%",
-            top: "-15%",
+            width: "120%",
+            height: "120%",
+            left: "-10%",
+            top: "-10%",
           }}
         >
-          <Image src="/images/earth-1.png" alt="Earth from space" fill className="object-cover" priority sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-cover" priority sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
 
-        {/* Orbital station */}
+        {/* 2. Person 1 — center-back (holographic umbrella) */}
         <div
-          className={`absolute z-5 ${shouldAnimate && revealed ? "zoom-layer-starship" : ""}`}
+          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
           style={{
-            transform: `translate3d(${mousePosition.x * 50}px, ${mousePosition.y * 50}px, 0) scale(0.75)`,
+            zIndex: 10,
+            transform: `translate3d(${mousePosition.x * 55}px, ${mousePosition.y * 55}px, 0)`,
             willChange: "transform",
-            width: "800px",
-            height: "800px",
-            left: "20px",
-            top: "20px",
+            width: "120%",
+            height: "120%",
+            left: "-10%",
+            top: "-10%",
           }}
         >
-          <Image src="/images/starship_earth.png" alt="Space station" fill className="object-contain" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
 
-        {/* Spacecraft window frame (centered) */}
+        {/* 3. Logo — mid brand beat (behind the front people, above the backdrop).
+            OUTER wrapper = parallax translate + entry animation; INNER element
+            (logoInnerRef) = what GSAP fades + scales on scroll, so the parallax
+            and GSAP never write the same element's transform. */}
         <div
-          className={`absolute inset-0 z-10 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+          className={`absolute inset-0 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
           style={{
-            transform: `translate3d(${mousePosition.x * 60}px, ${mousePosition.y * 60}px, 0)`,
-            willChange: "transform",
-            width: "130%",
-            height: "130%",
-            left: "-15%",
-            top: "-15%",
-          }}
-        >
-          <Image src="/images/earth-2.png" alt="Spacecraft interior window" fill className="object-contain object-center" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-        </div>
-
-        {/* Logo — sits BEHIND the astronaut (z-10), in front of the window/
-            Earth. OUTER wrapper = parallax translate + entry animation; INNER
-            element (logoInnerRef) = what GSAP fades + scales on scroll, so the
-            parallax and GSAP never touch the same element's transform. */}
-        <div
-          className={`absolute inset-0 z-10 flex items-center justify-center px-6 ${shouldAnimate && revealed ? "zoom-layer-text" : ""}`}
-          style={{
+            zIndex: 12,
             transform: `translate3d(${mousePosition.x * 90}px, ${mousePosition.y * 90}px, 0)`,
             willChange: "transform",
             perspective: "1000px",
@@ -371,19 +371,52 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
           </div>
         </div>
 
-        {/* Astronaut — foreground */}
+        {/* 4. Person 4 — left (green sweater, jacket over shoulder) */}
         <div
-          className={`absolute inset-0 z-20 ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
+          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
           style={{
-            transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0) scale(0.75)`,
+            zIndex: 15,
+            transform: `translate3d(${mousePosition.x * 70}px, ${mousePosition.y * 70}px, 0)`,
             willChange: "transform",
-            width: "110%",
-            height: "110%",
-            left: "-5%",
-            top: "calc(-5% + 150px)",
+            width: "120%",
+            height: "120%",
+            left: "-10%",
+            top: "-10%",
           }}
         >
-          <Image src="/images/earth-3.png" alt="Astronaut looking out the window" fill className="object-cover object-top" sizes="130vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+          <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+        </div>
+
+        {/* 5. Person 3 — right (blue umbrella raised) */}
+        <div
+          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+          style={{
+            zIndex: 16,
+            transform: `translate3d(${mousePosition.x * 85}px, ${mousePosition.y * 85}px, 0)`,
+            willChange: "transform",
+            width: "120%",
+            height: "120%",
+            left: "-10%",
+            top: "-10%",
+          }}
+        >
+          <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-cover" sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+        </div>
+
+        {/* 6. Person 2 — crouching, front, closest to camera (dramatic pop) */}
+        <div
+          className={`absolute ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
+          style={{
+            zIndex: 20,
+            transform: `translate3d(${mousePosition.x * 120}px, ${mousePosition.y * 120}px, 0)`,
+            willChange: "transform",
+            width: "120%",
+            height: "120%",
+            left: "-10%",
+            top: "-10%",
+          }}
+        >
+          <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="120vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
         </div>
       </div>
 
