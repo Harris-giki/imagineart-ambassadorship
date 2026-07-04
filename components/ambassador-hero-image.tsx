@@ -30,13 +30,17 @@ export default function AmbassadorHeroImage() {
                 tilt never exposes a hard edge. object-position biased UP so the
                 group's heads/umbrellas aren't cropped at the top. */}
             <CardItem translateZ={30} className="absolute inset-0">
+              {/* Portrait phones show the full height of this landscape photo,
+                  so the signpost dominates and the people shrink. Zoom in on
+                  mobile to bring the group forward; desktop keeps the wider,
+                  subtler framing. */}
               <Image
                 src={COLOR_SRC}
                 alt="ImagineArt community ambassadors"
                 fill
                 priority
                 sizes="100vw"
-                className="scale-105 object-cover object-[50%_38%]"
+                className="scale-[1.2] object-cover object-center md:scale-105 md:object-[50%_38%]"
               />
             </CardItem>
 
