@@ -166,7 +166,7 @@ export default function AmbassadorWhatYouGet() {
       // .container-page div below, whose `padding: 0 32px` rule zeroes vertical
       // padding and would silently kill any pt/pb utility placed on it. Moderate
       // on mobile, generous on desktop.
-      className="relative bg-background pt-20 pb-16 md:pt-56 md:pb-24"
+      className="relative bg-background pt-12 pb-16 md:pt-28 md:pb-24"
       // width of the dots cluster, used to indent the expanded body text
       style={{ ["--dots-w" as string]: "59px" }}
     >
