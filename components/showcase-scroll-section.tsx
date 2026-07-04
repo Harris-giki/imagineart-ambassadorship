@@ -145,9 +145,12 @@ export default function ShowcaseScrollSection({ images }: { images: ShowcaseImag
       }
 
       // Desktop only (mobile renders the gallery instead). Pin length scales
-      // with count so the one-by-one sequence has room (≈120% of viewport/card).
+      // with count so the one-by-one sequence has room. ~70% of viewport/card
+      // keeps each card to roughly one screen of scroll — enough to read the
+      // sequence without a long, mostly-dark pinned stretch (was 120%, which
+      // made ~2 screens per card and felt like a big black gap on entry).
       mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
-        build(items.length, `+=${items.length * 120}%`)
+        build(items.length, `+=${items.length * 70}%`)
       })
     }, rootRef)
 

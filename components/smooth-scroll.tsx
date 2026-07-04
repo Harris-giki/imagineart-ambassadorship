@@ -23,6 +23,7 @@ import { useEffect } from "react"
 import Lenis from "lenis"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { setLenisInstance } from "@/lib/lenis-instance"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,6 +38,10 @@ export default function SmoothScroll() {
       smoothWheel: true,
       touchMultiplier: 1.5, // keep touch feeling natural, not floaty
     })
+
+    // Expose the instance so the navbar can drive smooth anchor scrolling
+    // through Lenis (see lib/lenis-instance).
+    setLenisInstance(lenis)
 
     // Keep ScrollTrigger in sync with Lenis' virtual scroll.
     lenis.on("scroll", ScrollTrigger.update)
@@ -57,6 +62,7 @@ export default function SmoothScroll() {
     return () => {
       gsap.ticker.remove(onTick)
       window.removeEventListener("load", refresh)
+      setLenisInstance(null)
       lenis.destroy()
     }
   }, [])

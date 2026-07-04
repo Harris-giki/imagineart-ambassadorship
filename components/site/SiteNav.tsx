@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState, useEffect } from "react"
-import Link from "next/link"
+import { getLenisInstance } from "@/lib/lenis-instance"
 
 // Links point at the page's own sections (replaces the kit's placeholder labels).
 const NAV_LINKS = [
@@ -29,6 +29,47 @@ export function SiteNav() {
       document.body.style.overflow = ""
     }
   }, [menuOpen])
+
+  // Smooth in-page navigation. A native hash jump sets window.scrollY directly,
+  // which desyncs from Lenis' virtual scroll and interrupts the pinned parallax.
+  // Instead we drive the scroll THROUGH Lenis so the pin/scrub stay in step and
+  // any distance (even fast-forwarding the whole intro) eases in a fixed time.
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith("#")) return
+    const lenis = getLenisInstance()
+    // No Lenis (prefers-reduced-motion) → let the browser jump natively.
+    if (!lenis) {
+      setMenuOpen(false)
+      return
+    }
+    e.preventDefault()
+
+    // If the mobile menu is open, close it and free body scroll BEFORE scrolling.
+    const wasMenuOpen = menuOpen
+    if (wasMenuOpen) {
+      setMenuOpen(false)
+      document.body.style.overflow = ""
+    }
+
+    const run = () => {
+      if (href === "#top") {
+        lenis.scrollTo(0, { duration: 1.15 })
+      } else {
+        const target = document.querySelector(href) as HTMLElement | null
+        if (!target) return
+        // Leave clearance for the fixed navbar; fixed duration so a long jump
+        // (through the intro) doesn't feel sluggish.
+        lenis.scrollTo(target, { offset: -80, duration: 1.15 })
+      }
+      // Reflect the section in the URL without triggering a second jump.
+      history.replaceState(null, "", href)
+    }
+
+    // When closing the mobile overlay, wait a frame so its unmount + restored
+    // body scroll settle before Lenis measures the target.
+    if (wasMenuOpen) requestAnimationFrame(run)
+    else run()
+  }
 
   // The site opens on a dark cinematic scene, so at the very top the bar uses
   // light text; once scrolled it collapses into the dark glass pill (also light
@@ -60,7 +101,11 @@ export function SiteNav() {
           }}
         >
           {/* Logo (white wordmark — the whole experience sits on dark) */}
-          <Link href="#top" className="inline-flex items-center shrink-0 no-underline">
+          <a
+            href="#top"
+            onClick={(e) => handleNavClick(e, "#top")}
+            className="inline-flex items-center shrink-0 no-underline"
+          >
             <img
               src="/imagine-art-wordmark.svg"
               alt="ImagineArt"
@@ -69,7 +114,7 @@ export function SiteNav() {
               className="h-[22px] w-auto"
               style={{ filter: "brightness(0) invert(1)" }}
             />
-          </Link>
+          </a>
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-0.5">
@@ -77,6 +122,7 @@ export function SiteNav() {
               <a
                 key={l.label}
                 href={l.href}
+                onClick={(e) => handleNavClick(e, l.href)}
                 className="px-[14px] py-[6px] rounded-lg font-sans text-[14px] font-medium tracking-[0.14px] whitespace-nowrap transition-colors duration-150"
                 style={{ color: linkColor }}
                 onMouseEnter={(e) => {
@@ -142,7 +188,11 @@ export function SiteNav() {
           style={{ animation: "mobileMenuIn 0.22s cubic-bezier(0.4,0,0.2,1) forwards" }}
         >
           <div className="flex items-center justify-between px-6 py-[18px] shrink-0">
-            <Link href="#top" onClick={() => setMenuOpen(false)} className="inline-flex items-center">
+            <a
+              href="#top"
+              onClick={(e) => handleNavClick(e, "#top")}
+              className="inline-flex items-center"
+            >
               <img
                 src="/imagine-art-wordmark.svg"
                 alt="ImagineArt"
@@ -151,7 +201,7 @@ export function SiteNav() {
                 className="h-[22px] w-auto"
                 style={{ filter: "brightness(0) invert(1)" }}
               />
-            </Link>
+            </a>
             <button
               onClick={() => setMenuOpen(false)}
               className="flex items-center justify-center p-1 border-none bg-transparent cursor-pointer transition-colors duration-150"
@@ -170,7 +220,7 @@ export function SiteNav() {
                 <a
                   key={l.label}
                   href={l.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, l.href)}
                   className="block text-center px-8 py-2.5 rounded-[10px] font-sans text-[22px] font-light tracking-[-0.2px] transition-colors duration-150"
                   style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none" }}
                 >
