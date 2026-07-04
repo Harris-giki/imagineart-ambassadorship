@@ -25,12 +25,13 @@ type Mode = "pending" | "mobile" | "desktop"
 export default function HeroIntro() {
   const [mode, setMode] = useState<Mode>("pending")
 
+  // Decide ONCE on mount and never hot-swap on resize. Swapping desktop⇄mobile
+  // would unmount the GSAP-pinned CinematicIntro <section>, and React can't
+  // remove a node GSAP moved into a pin-spacer → "removeChild is not a child"
+  // crash. A real phone/desktop keeps its mode for the whole session; changing
+  // form factor just needs a reload.
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)")
-    const apply = () => setMode(mq.matches ? "mobile" : "desktop")
-    apply()
-    mq.addEventListener("change", apply)
-    return () => mq.removeEventListener("change", apply)
+    setMode(window.matchMedia("(max-width: 767px)").matches ? "mobile" : "desktop")
   }, [])
 
   // (ScrollTrigger recalculation is handled by the preloader — it refreshes once
