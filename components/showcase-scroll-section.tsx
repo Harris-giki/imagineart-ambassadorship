@@ -49,13 +49,13 @@ type Slot = {
 }
 
 const SLOTS: Slot[] = [
-  { left: "4%", width: "clamp(200px, 46vw, 640px)", xFrom: -2, xTo: 2, scaleFrom: 0.94, scaleTo: 1.06 },
-  { left: "49%", width: "clamp(210px, 47vw, 660px)", xFrom: 3, xTo: -2, scaleFrom: 0.96, scaleTo: 1.08 },
-  { left: "26%", width: "clamp(190px, 40vw, 560px)", xFrom: -1, xTo: 2, scaleFrom: 0.92, scaleTo: 1.02 },
-  { left: "50%", width: "clamp(200px, 43vw, 600px)", xFrom: 2, xTo: -3, scaleFrom: 0.95, scaleTo: 1.05 },
-  { left: "7%", width: "clamp(210px, 46vw, 640px)", xFrom: -2, xTo: 1, scaleFrom: 0.94, scaleTo: 1.07 },
-  { left: "36%", width: "clamp(180px, 38vw, 520px)", xFrom: 1, xTo: -1, scaleFrom: 0.9, scaleTo: 1.0 },
-  { left: "28%", width: "clamp(200px, 44vw, 600px)", xFrom: 2, xTo: -2, scaleFrom: 0.93, scaleTo: 1.04 },
+  { left: "2%", width: "clamp(220px, 52vw, 720px)", xFrom: -2, xTo: 2, scaleFrom: 0.94, scaleTo: 1.06 },
+  { left: "47%", width: "clamp(230px, 53vw, 740px)", xFrom: 3, xTo: -2, scaleFrom: 0.96, scaleTo: 1.08 },
+  { left: "24%", width: "clamp(210px, 45vw, 630px)", xFrom: -1, xTo: 2, scaleFrom: 0.92, scaleTo: 1.02 },
+  { left: "48%", width: "clamp(220px, 48vw, 675px)", xFrom: 2, xTo: -3, scaleFrom: 0.95, scaleTo: 1.05 },
+  { left: "5%", width: "clamp(230px, 52vw, 720px)", xFrom: -2, xTo: 1, scaleFrom: 0.94, scaleTo: 1.07 },
+  { left: "34%", width: "clamp(200px, 43vw, 585px)", xFrom: 1, xTo: -1, scaleFrom: 0.9, scaleTo: 1.0 },
+  { left: "26%", width: "clamp(220px, 50vw, 675px)", xFrom: 2, xTo: -2, scaleFrom: 0.93, scaleTo: 1.04 },
 ]
 
 const MAX_CARDS = 7
@@ -64,25 +64,34 @@ const MAX_CARDS = 7
 // after the previous one. Each tween lasts 1s, so STEP < 1 = slight overlap
 // (the next card enters when the previous is ~70% across) → continuous but
 // clearly one-after-another.
-const STEP = 0.7
+const STEP = 0.55
 
 export default function ShowcaseScrollSection({ images }: { images: ShowcaseImage[] }) {
   const rootRef = useRef<HTMLElement>(null)
   const headlineRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<HTMLDivElement[]>([])
 
-  // Reduced motion is handled with a different (static) DOM, so track it in
-  // React. Starts false (matches SSR) then syncs on mount → no hydration drift.
+  // Reduced motion → static stacked; mobile (<768px) → a simple swipe gallery
+  // (no pinned/floating effect). `resolved` gates the GSAP setup so it NEVER
+  // runs before we know the viewport (avoids pinning on mobile then tearing down).
   const [reduced, setReduced] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [resolved, setResolved] = useState(false)
   useEffect(() => {
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    const mq = window.matchMedia("(max-width: 767px)")
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    setResolved(true)
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
   }, [])
 
   const items = images.slice(0, MAX_CARDS).map((img, i) => ({ ...img, slot: SLOTS[i % SLOTS.length] }))
 
-  // ---- GSAP pin + scrub (skipped entirely for reduced motion) -------------
+  // ---- GSAP pin + scrub (desktop only; skipped for mobile & reduced motion) --
   useEffect(() => {
-    if (reduced) return
+    if (!resolved || reduced || isMobile) return
     const cards = cardRefs.current.filter(Boolean)
     if (!cards.length) return
 
@@ -135,26 +144,38 @@ export default function ShowcaseScrollSection({ images }: { images: ShowcaseImag
         })
       }
 
-      // Desktop: all cards; pin length scales with count so the one-by-one
-      // sequence has room to play out (≈120% of viewport per card).
+      // Desktop only (mobile renders the gallery instead). Pin length scales
+      // with count so the one-by-one sequence has room (≈120% of viewport/card).
       mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
         build(items.length, `+=${items.length * 120}%`)
-      })
-
-      // Mobile: fewer cards (max 4), shorter pin (≈90% per card).
-      mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => {
-        const count = Math.min(4, items.length)
-        build(count, `+=${count * 90}%`)
       })
     }, rootRef)
 
     return () => ctx.revert()
-  }, [reduced, items])
+  }, [resolved, reduced, isMobile, items])
 
-  /* ---------- reduced motion: static stacked layout, normal scroll -------- */
-  if (reduced) {
-    return (
-      <section className="bg-background" aria-label="Showcase">
+  /* ---------- mobile: CommunityCreations-style swipe gallery -------------- */
+  // ONE stable <section> for every mode. It is NEVER swapped for a different
+  // node — only its className + inner content change — so GSAP's pin (which
+  // wraps this element in a pin-spacer on desktop) can never cause a React
+  // "removeChild is not a child" crash when the viewport crosses the breakpoint.
+  const desktopAnimated = resolved && !isMobile && !reduced
+
+  return (
+    <section
+      ref={rootRef}
+      aria-label="Showcase"
+      className={
+        desktopAnimated
+          ? "relative h-screen w-full overflow-hidden bg-background"
+          : "bg-background"
+      }
+    >
+      {isMobile ? (
+        /* ---- mobile: swipe gallery ---- */
+        <MobileGalleryContent images={images} />
+      ) : reduced ? (
+        /* ---- reduced motion: static stacked ---- */
         <div className="container-page py-24 text-center md:py-32">
           <Headline />
           <div className="mt-12 flex flex-col items-center gap-6">
@@ -171,41 +192,39 @@ export default function ShowcaseScrollSection({ images }: { images: ShowcaseImag
             ))}
           </div>
         </div>
-      </section>
-    )
-  }
-
-  /* ---------- animated (pinned) layout ----------------------------------- */
-  return (
-    <section ref={rootRef} className="relative h-screen w-full overflow-hidden bg-background" aria-label="Showcase">
-      {/* BACKGROUND — centered headline (fixed; only fades in). */}
-      <div ref={headlineRef} className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
-        <Headline />
-      </div>
-
-      {/* FOREGROUND — floating image cards that glide up over the headline. */}
-      <div className="absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
-        {items.map((it, i) => (
+      ) : (
+        /* ---- desktop: pinned floating cards over a fixed headline ---- */
+        <>
           <div
-            key={it.src}
-            ref={(el) => {
-              if (el) cardRefs.current[i] = el
-            }}
-            className="absolute top-0 overflow-hidden rounded-2xl shadow-[0_24px_70px_-18px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
-            style={{ left: it.slot.left, width: it.slot.width, willChange: "transform" }}
+            ref={headlineRef}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center"
           >
-            <Image
-              src={it.src}
-              width={it.width}
-              height={it.height}
-              alt=""
-              draggable={false}
-              sizes="(max-width: 767px) 80vw, 45vw"
-              className="block h-auto w-full select-none"
-            />
+            <Headline />
           </div>
-        ))}
-      </div>
+          <div className="absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
+            {items.map((it, i) => (
+              <div
+                key={it.src}
+                ref={(el) => {
+                  if (el) cardRefs.current[i] = el
+                }}
+                className="absolute top-0 overflow-hidden rounded-2xl shadow-[0_24px_70px_-18px_rgba(0,0,0,0.85)] ring-1 ring-white/10"
+                style={{ left: it.slot.left, width: it.slot.width, willChange: "transform" }}
+              >
+                <Image
+                  src={it.src}
+                  width={it.width}
+                  height={it.height}
+                  alt=""
+                  draggable={false}
+                  sizes="(max-width: 767px) 80vw, 45vw"
+                  className="block h-auto w-full select-none"
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </section>
   )
 }
@@ -231,5 +250,43 @@ function Headline() {
         ImagineArt Community Ambassadors
       </p>
     </>
+  )
+}
+
+/* ---------- mobile gallery (phone only) ------------------------------------
+ * A CommunityCreations-style horizontal swipe gallery — no pinning, no floating
+ * effect, just native touch scroll. Left-aligned heading, snap-scroll strip of
+ * the showcase images. Used in place of the pinned effect on < 768px. */
+function MobileGalleryContent({ images }: { images: ShowcaseImage[] }) {
+  return (
+    <div className="py-16">
+      <div className="container-page">
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-[1.8px] text-content-tertiary">
+          Showcase
+        </span>
+        <h2
+          className="mt-3 font-display uppercase leading-[0.95] tracking-[-0.02em] text-content-primary"
+          style={{ fontSize: "clamp(32px, 9vw, 60px)", fontWeight: 600, fontStretch: "condensed" }}
+        >
+          Lead The New Era Of Art &amp; Creativity
+        </h2>
+        <p className="mt-4 max-w-[46ch] text-pretty font-sans text-[15px] leading-[1.6] text-content-secondary">
+          Work made by creators around the world using ImagineArt. Swipe through the gallery.
+        </p>
+      </div>
+
+      {/* Full-bleed horizontal snap-scroll strip. All cards share ONE aspect
+          ratio (4:5) via object-cover; the last image is dropped. */}
+      <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {images.slice(0, -1).map((img) => (
+          <div
+            key={img.src}
+            className="relative aspect-[4/5] w-[72vw] max-w-[360px] shrink-0 snap-center overflow-hidden rounded-2xl ring-1 ring-white/10"
+          >
+            <Image src={img.src} alt="" fill sizes="72vw" className="object-cover" />
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }

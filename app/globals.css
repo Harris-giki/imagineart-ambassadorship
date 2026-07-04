@@ -132,10 +132,17 @@
     color: inherit;
     text-decoration: none;
   }
-  ::selection {
-    background: rgb(138 63 252 / 0.22);
-    color: rgb(23 23 23);
-  }
+}
+
+/* Text selection — UNLAYERED (beats @layer base + the UA default) so it always
+   wins: light purple highlight, white text. Both standard + Firefox selectors. */
+::selection {
+  background: rgb(155 96 253);
+  color: #ffffff;
+}
+::-moz-selection {
+  background: rgb(155 96 253);
+  color: #ffffff;
 }
 
 @layer utilities {

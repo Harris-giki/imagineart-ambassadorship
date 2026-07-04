@@ -63,18 +63,15 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [needsPermission, setNeedsPermission] = useState(false)
   const [gyroActive, setGyroActive] = useState(false)
-  const [shouldAnimate, setShouldAnimate] = useState(false)
   const frameRef = useRef<number | null>(null)
   const lastUpdateRef = useRef<number>(0)
 
   // ---- Preloader sync -----------------------------------------------------
   // The IntroPreloader covers the screen until THESE images (the parallax
-  // assets, and only these) finish loading. Each image's onLoad/onError bumps
-  // a counter; we broadcast progress so the preloader can show a bar and lift.
-  // `revealed` then starts the entry animation exactly as the curtain lifts,
-  // so the zoom never plays hidden behind the loader.
-  const INTRO_ASSET_COUNT = 5 // background + 4 people (logo removed)
-  const [revealed, setRevealed] = useState(false)
+  // assets, and only these) finish loading. We broadcast load progress so the
+  // preloader can show a bar and then lift to reveal the ready scene (there's
+  // no separate scene entry animation — the preloader's fade IS the reveal).
+  const INTRO_ASSET_COUNT = 2 // original group photo + all-people occlusion cutout
 
   // Recompute progress from the ACTUAL <img> state inside the scene (rather
   // than counting onLoad calls) so already-cached images — whose load event
@@ -86,7 +83,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
     const total = imgs.length || INTRO_ASSET_COUNT
     const loaded = imgs.filter((im) => im.complete && im.naturalWidth > 0).length
     window.dispatchEvent(new CustomEvent("intro-progress", { detail: { loaded, total } }))
-    if (total > 0 && loaded >= total) setRevealed(true)
   }
   const handleAssetLoad = reportProgress
 
@@ -95,7 +91,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   useEffect(() => {
     const raf = requestAnimationFrame(reportProgress)
     const safety = window.setTimeout(() => {
-      setRevealed(true)
       window.dispatchEvent(
         new CustomEvent("intro-progress", {
           detail: { loaded: INTRO_ASSET_COUNT, total: INTRO_ASSET_COUNT },
@@ -123,7 +118,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         if (permissionState === "granted") {
           setNeedsPermission(false)
           setGyroActive(true)
-          setShouldAnimate(true)
         }
       } catch (error) {
         console.error("Permission denied:", error)
@@ -131,7 +125,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
     } else {
       setNeedsPermission(false)
       setGyroActive(true)
-      setShouldAnimate(true)
     }
   }
 
@@ -145,12 +138,23 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
     window.scrollTo(0, 0)
   }, [])
 
-  // ---- Phase 1: mouse + gyro parallax (unchanged from the original) -------
+  // ---- Phase 1: mouse + gyro parallax -------------------------------------
   useEffect(() => {
+    // rAF-throttle the mouse so we setState at most once per frame. Without
+    // this, mousemove fires 100-200×/s and re-renders every image layer each
+    // time → the visible "blinking"/lag during the parallax.
+    let mouseRaf = 0
+    let pending: { x: number; y: number } | null = null
     const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX - window.innerWidth / 2) / window.innerWidth
-      const y = (e.clientY - window.innerHeight / 2) / window.innerHeight
-      setMousePosition({ x, y })
+      pending = {
+        x: (e.clientX - window.innerWidth / 2) / window.innerWidth,
+        y: (e.clientY - window.innerHeight / 2) / window.innerHeight,
+      }
+      if (mouseRaf) return
+      mouseRaf = requestAnimationFrame(() => {
+        mouseRaf = 0
+        if (pending) setMousePosition(pending)
+      })
     }
 
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -183,11 +187,9 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         setNeedsPermission(true)
       } else {
         setGyroActive(true)
-        setShouldAnimate(true)
       }
     } else {
       window.addEventListener("mousemove", handleMouseMove)
-      setShouldAnimate(true)
     }
 
     if (gyroActive) {
@@ -198,6 +200,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
       window.removeEventListener("mousemove", handleMouseMove)
       window.removeEventListener("deviceorientation", handleOrientation)
       if (frameRef.current) cancelAnimationFrame(frameRef.current)
+      if (mouseRaf) cancelAnimationFrame(mouseRaf)
     }
   }, [gyroActive])
 
@@ -216,11 +219,12 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             pin: true, // pin the intro while the timeline scrubs
             scrub: 0.4, // light smoothing — low lag so the scene never trails past the reveal
             anticipatePin: 1, // avoid a 1-frame jump when the pin engages
-            invalidateOnRefresh: true, // recompute on resize -> origin stays centered
+            // NOTE: no invalidateOnRefresh here — the intro tweens are static, and
+            // invalidating re-rendered the timeline on every refresh, which
+            // flashed the scene at load. The showcase pin below keeps it.
             // This pin is at the TOP of the page, so it must refresh BEFORE the
-            // showcase pin below it (which is created earlier, on first mount).
-            // Higher refreshPriority = refreshed first, so the showcase then
-            // measures its start with this pin's spacing already applied.
+            // showcase pin below it. Higher refreshPriority = refreshed first, so
+            // the showcase measures its start with this pin's spacing applied.
             refreshPriority: 1,
           },
         })
@@ -301,81 +305,97 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         className="absolute inset-0"
         style={{ transformOrigin: "50% 50%", willChange: "transform" }}
       >
-        {/* 16:9 STAGE — the assets are a 16:9 composition, so we show them in a
-            centered 16:9 box (the largest that fits the viewport). This displays
-            the FULL group/backdrop like the reference instead of cropping the
-            headroom + floor, and the dark image edges letterbox seamlessly on
-            wide screens. overflow-hidden clips the small parallax oversize. */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
-          style={{ width: "min(100vw, calc(100vh * 16 / 9))", aspectRatio: "16 / 9" }}
-        >
-          {/* Every layer is a full-frame 16:9 PNG with its subject already in
-              position. All layers are IDENTICAL geometry — inset-0, 100%, NO
-              offset, NO oversize, object-contain — so at rest (mouse centered)
-              they composite back into the EXACT original photo. Only z-index,
-              a TINY parallax multiplier, and the entry animation differ per
-              depth (bigger multiplier = closer = moves a hair more). The subtle
-              parallax is a depth nudge, never a reframing. */}
+        {/* FULL-BLEED STAGE — fills the whole viewport edge to edge. Every layer
+            is object-cover, so the 16:9 assets cover the screen (a little top/
+            bottom is cropped on ultra-wide screens, which is the trade for full
+            bleed). All layers share identical geometry so they crop together and
+            stay perfectly registered. */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Depth from the REAL group photo. The deepest layer is the full
+              original shot (so the scene is ALWAYS pixel-faithful to the
+              reference — perfect positions/scale, nothing missing). On top sit
+              two in-place cutouts (cut directly from the original at their exact
+              spots) of the two front figures, so they parallax a hair more than
+              the plate for a subtle depth pop. All layers share identical
+              geometry (inset-0, 100%, object-cover) → at rest they recompose
+              into the exact original. Multipliers are tiny and deltas are small,
+              so registration never visibly breaks. */}
 
-          {/* 1. Backdrop — deepest layer (studio plate) */}
+          {/* 1. Full original group photo — deepest, guarantees exact framing */}
           <div
-            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-1" : ""}`}
+            className="absolute inset-0"
             style={{
               zIndex: 0,
               transform: `translate3d(${mousePosition.x * 4}px, ${mousePosition.y * 4}px, 0)`,
               willChange: "transform",
             }}
           >
-            <Image src="/new-background/background.png" alt="Studio backdrop" fill className="object-contain" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/original.png" alt="ImagineArt Ambassadors" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 2. Person 1 — center-back (holographic umbrella) */}
+          {/* 1b. "COMMUNITY" — IN FRONT of the group (top line), fully visible,
+              stacked directly above AMBASSADORS as one title over the scene. */}
           <div
-            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            className="absolute inset-0 flex items-center justify-center px-6 pt-[15vh] text-center"
+            style={{
+              zIndex: 25,
+              transform: `translate3d(${mousePosition.x * 10}px, ${mousePosition.y * 10}px, 0)`,
+              willChange: "transform",
+            }}
+            aria-hidden="true"
+          >
+            <span
+              className="font-display uppercase leading-[0.82] tracking-[-0.015em] text-white"
+              style={{
+                fontWeight: 600,
+                fontStretch: "condensed",
+                fontSize: "clamp(38px, 8vw, 138px)",
+                textShadow: "0 4px 34px rgba(0,0,0,0.5)",
+                transform: "translateY(-0.46em)", // stack as the top line
+              }}
+            >
+              Community
+            </span>
+          </div>
+
+          {/* 2. ALL PEOPLE — an in-place cutout of the whole group, sitting
+              ABOVE the title so the title reads fully BEHIND everyone. Pops a
+              little more than the backdrop for a subtle depth nudge. */}
+          <div
+            className="absolute inset-0"
             style={{
               zIndex: 10,
-              transform: `translate3d(${mousePosition.x * 7}px, ${mousePosition.y * 7}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 8}px, ${mousePosition.y * 8}px, 0)`,
               willChange: "transform",
             }}
           >
-            <Image src="/new-background/person1.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/new-background/people_all.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 3. Person 4 — left (green sweater, jacket over shoulder) */}
+          {/* 3. "AMBASSADORS" — IN FRONT of the group (bottom line), fully
+              visible over the people. Highest scene layer (still below the
+              black-out/hero). Pops the most for depth. */}
           <div
-            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
+            className="absolute inset-0 flex items-center justify-center px-6 pt-[15vh] text-center"
             style={{
-              zIndex: 15,
-              transform: `translate3d(${mousePosition.x * 9}px, ${mousePosition.y * 9}px, 0)`,
+              zIndex: 25,
+              transform: `translate3d(${mousePosition.x * 10}px, ${mousePosition.y * 10}px, 0)`,
               willChange: "transform",
             }}
+            aria-hidden="true"
           >
-            <Image src="/new-background/person4.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-          </div>
-
-          {/* 4. Person 3 — right (blue umbrella raised) */}
-          <div
-            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-2" : ""}`}
-            style={{
-              zIndex: 16,
-              transform: `translate3d(${mousePosition.x * 11}px, ${mousePosition.y * 11}px, 0)`,
-              willChange: "transform",
-            }}
-          >
-            <Image src="/new-background/person3.png" alt="" aria-hidden="true" fill className="object-contain" sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-          </div>
-
-          {/* 5. Person 2 — crouching, front, closest to camera */}
-          <div
-            className={`absolute inset-0 ${shouldAnimate && revealed ? "zoom-layer-3" : ""}`}
-            style={{
-              zIndex: 20,
-              transform: `translate3d(${mousePosition.x * 16}px, ${mousePosition.y * 16}px, 0)`,
-              willChange: "transform",
-            }}
-          >
-            <Image src="/new-background/person2.png" alt="" aria-hidden="true" fill className="object-contain" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <span
+              className="font-display uppercase leading-[0.82] tracking-[-0.015em] text-white"
+              style={{
+                fontWeight: 600,
+                fontStretch: "condensed",
+                fontSize: "clamp(38px, 8vw, 138px)",
+                textShadow: "0 6px 40px rgba(0,0,0,0.62)",
+                transform: "translateY(0.46em)", // stack as the bottom line
+              }}
+            >
+              Ambassadors
+            </span>
           </div>
         </div>
       </div>
@@ -392,53 +412,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
           Starts transparent (opacity-0 class avoids any SSR flash). GSAP fades
           it IN to cover the scene, then OUT to reveal the hero beneath it. */}
       <div ref={overlayRef} className="absolute inset-0 z-40 bg-black opacity-0" style={{ willChange: "opacity" }} aria-hidden="true" />
-
-      {/* Entry animation keyframes (Phase 1) — GENTLE: every layer starts near
-          scale 1 and settles to the exact composite (scale 1 / opacity 1), so
-          the resting frame is pixel-faithful to the reference. Deeper layers
-          settle from slightly less zoom; the front figure from a touch more. */}
-      <style jsx>{`
-        .zoom-layer-1 {
-          animation: zoomOut1 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        .zoom-layer-2 {
-          animation: zoomOut2 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        .zoom-layer-3 {
-          animation: zoomOut3 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        @keyframes zoomOut1 {
-          0% {
-            scale: 1.08;
-            opacity: 0;
-          }
-          100% {
-            scale: 1;
-            opacity: 1;
-          }
-        }
-        @keyframes zoomOut2 {
-          0% {
-            scale: 1.12;
-            opacity: 0;
-          }
-          100% {
-            scale: 1;
-            opacity: 1;
-          }
-        }
-        @keyframes zoomOut3 {
-          0% {
-            scale: 1.2;
-            opacity: 0;
-          }
-          100% {
-            scale: 1;
-            opacity: 1;
-          }
-        }
-      `}</style>
     </section>
   )
 }

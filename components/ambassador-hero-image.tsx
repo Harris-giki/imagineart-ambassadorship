@@ -1,64 +1,60 @@
 "use client"
 
 /**
- * AmbassadorHeroImage — the large cinematic hero panel under the headline.
+ * AmbassadorHeroImage — the hero shown after the parallax intro (and directly on
+ * mobile): the `imagineart-hero-amb` photo as a large panel.
  *
- * Effect: ONLY the 3D card perspective tilt (components/ui/3d-card). The whole
- * panel tilts toward the pointer; the image and the caption float at different
- * translateZ depths, so both lift off the surface. No depth-map parallax, no
- * drop shadow — just the clean tilt.
+ * Layout: the panel is inset from the top so it sits BELOW the fixed navbar
+ * (never hidden behind it), spans nearly the full width, and leaves clear
+ * spacing beneath it before the next section.
  *
- * The caption (eyebrow + title + tagline) sits on top of the image at the
- * bottom, over a light gradient for legibility, and floats highest.
- * After this section the page scrolls 100% normally.
+ * Effect (kept): a subtle 3D perspective tilt (components/ui/3d-card) with a
+ * small maxTilt (full-size element). The image is slightly oversized so the tilt
+ * never reveals a hard edge; the caption floats above it at a higher translateZ.
  */
 
 import Image from "next/image"
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card"
 
-// A touch wider than the headline block so the panel reads as the hero's
-// centerpiece (bigger in both length & breadth).
-const HERO_WIDTH = "min(1320px, 94vw)"
 const COLOR_SRC = "/images/imagineart-hero-amb.png"
 
 export default function AmbassadorHeroImage() {
   return (
-    <section className="w-full bg-background" aria-label="ImagineArt Ambassadors">
-      {/* Small negative top margin pulls the panel up a little so it sits
-          closer to the headline — kept conservative so it never overlaps the
-          hero text above it. */}
-      <div className="mx-auto -mt-[4vh] pb-24 md:-mt-[10vh] md:pb-32" style={{ width: HERO_WIDTH }}>
-        <CardContainer containerClassName="w-full" className="w-full">
-          <CardBody className="aspect-[16/9] w-full rounded-[24px] border border-white/10">
-            {/* Image layer — floats off the surface. */}
-            <CardItem translateZ={50} className="absolute inset-0">
-              <div className="relative h-full w-full overflow-hidden rounded-[24px]">
-                <Image
-                  src={COLOR_SRC}
-                  alt="ImagineArt community ambassadors"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 94vw, 1320px"
-                  className="object-cover"
-                />
-              </div>
+    <section id="top" className="relative h-screen w-full overflow-hidden bg-background" aria-label="ImagineArt Ambassadors">
+      {/* Inset: top clears the fixed navbar, bottom leaves spacing before the
+          next section. Small side gutters → wide panel. */}
+      <div className="absolute inset-0 px-2 pb-20 pt-[84px] md:pb-28 md:pt-[100px]">
+        <CardContainer containerClassName="h-full w-full" className="h-full w-full" maxTilt={4}>
+          <CardBody className="relative h-full w-full overflow-hidden rounded-[22px] border border-white/10">
+            {/* Image layer — fills the panel, floats slightly. Oversized so the
+                tilt never exposes a hard edge. object-position biased UP so the
+                group's heads/umbrellas aren't cropped at the top. */}
+            <CardItem translateZ={30} className="absolute inset-0">
+              <Image
+                src={COLOR_SRC}
+                alt="ImagineArt community ambassadors"
+                fill
+                priority
+                sizes="100vw"
+                className="scale-105 object-cover object-[50%_18%]"
+              />
             </CardItem>
 
-            {/* Caption layer — floats highest, over a legibility gradient. */}
-            <CardItem translateZ={90} className="pointer-events-none absolute inset-x-0 bottom-0">
-              <div className="rounded-b-[24px] bg-gradient-to-t from-black/85 via-black/45 to-transparent px-6 pb-7 pt-24 md:px-10 md:pb-10 md:pt-32">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[1.8px] text-white/55">
-                  ImagineArt Ambassador Program
+            {/* Caption — floats highest, over a bottom legibility gradient. */}
+            <CardItem translateZ={70} className="pointer-events-none absolute inset-x-0 bottom-0">
+              <div className="rounded-b-[22px] bg-gradient-to-t from-black/80 via-black/35 to-transparent px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[1.8px] text-white/60 md:text-[11px]">
+                  ImagineArt Student Ambassador Program
                 </span>
                 <h2
-                  className="mt-2 font-display font-semibold capitalize leading-[1.05] tracking-[-0.5px] text-white"
-                  style={{ fontSize: "clamp(24px, 3vw, 40px)" }}
+                  className="mt-3 font-display font-semibold capitalize leading-[1.02] tracking-[-0.5px] text-white"
+                  style={{ fontSize: "clamp(28px, 4vw, 54px)" }}
                 >
                   Build &amp; Lead The Community
                 </h2>
-                <p className="mt-3 max-w-[60ch] font-sans text-[14px] leading-[1.65] text-white/75 md:text-[16px]">
-                  Represent ImagineArt in your region. Host events, mentor creators, and partner with us to
-                  grow AI art culture across the Americas, Europe, Australia, and Asia.
+                <p className="mt-4 max-w-[54ch] text-pretty font-sans text-[15px] leading-[1.6] text-white/75 md:text-[17px]">
+                  Represent ImagineArt at your university. Host events, mentor fellow students, and grow a
+                  thriving creative community on your campus.
                 </p>
               </div>
             </CardItem>

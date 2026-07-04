@@ -39,7 +39,7 @@ const PROFILES: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Users,
     title: "Community Builders",
-    body: "You bring creators together by organizing meetups, leading local groups, or holding a visible presence on Discord, Reddit, or X.",
+    body: "You bring students together and uplift their creative workflow by organizing meetups, leading campus groups, or holding a visible presence on Discord, Reddit, or X.",
   },
   {
     icon: Sparkles,
@@ -97,7 +97,7 @@ function DottedCell({ children }: { children: React.ReactNode }) {
   )
 }
 
-function WhoWeWant() {
+export function WhoWeWant() {
   return (
     <section id="who" className="bg-background">
       {/* padding-block: clamp(96px, 12vh, 180px) → guaranteed empty black above
@@ -133,7 +133,7 @@ function WhoWeWant() {
   )
 }
 
-function HowItWorks() {
+export function HowItWorks() {
   return (
     <section id="how-it-works" className="bg-background">
       <div className="container-page" style={{ paddingBlock: "clamp(96px, 12vh, 180px)" }}>

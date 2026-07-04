@@ -23,10 +23,14 @@ export const CardContainer = ({
   children,
   className,
   containerClassName,
+  maxTilt = 10,
 }: {
   children?: React.ReactNode
   className?: string
   containerClassName?: string
+  /** Max tilt in degrees at the edges — size-independent, so it works for both
+   *  a small card and a full-bleed hero (pass a small value for the latter). */
+  maxTilt?: number
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMouseEntered, setIsMouseEntered] = useState(false)
@@ -34,9 +38,10 @@ export const CardContainer = ({
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
     const { left, top, width, height } = containerRef.current.getBoundingClientRect()
-    // Divisor controls tilt amount — larger = subtler.
-    const x = (e.clientX - left - width / 2) / 28
-    const y = (e.clientY - top - height / 2) / 28
+    // Normalize pointer offset to [-1, 1] then scale to maxTilt, so the tilt is
+    // the same regardless of element size.
+    const x = ((e.clientX - left - width / 2) / (width / 2)) * maxTilt
+    const y = ((e.clientY - top - height / 2) / (height / 2)) * maxTilt
     containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`
   }
 

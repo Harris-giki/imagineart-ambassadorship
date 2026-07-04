@@ -38,14 +38,16 @@ export default function IntroPreloader() {
       if (done) return
       done = true
       setProgress(1)
-      setLifting(true) // start opacity fade
-      window.setTimeout(() => {
-        setMounted(false)
-        document.body.style.overflow = ""
-        // Scroll just became available again → recalc pinned triggers so the
-        // showcase/intro pins use correct positions on the now-scrollable page.
-        ScrollTrigger.refresh()
-      }, 520) // match the CSS transition duration below
+      // Unlock scroll and recalc pinned triggers WHILE the preloader is still
+      // fully opaque — so any layout jump from ScrollTrigger.refresh() happens
+      // hidden behind the cover, not visibly at the reveal (that was the flicker).
+      document.body.style.overflow = ""
+      ScrollTrigger.refresh()
+      // Next frame, start the fade-out to reveal the now-settled scene.
+      requestAnimationFrame(() => {
+        setLifting(true)
+        window.setTimeout(() => setMounted(false), 520) // match CSS transition
+      })
     }
 
     const onProgress = (e: Event) => {

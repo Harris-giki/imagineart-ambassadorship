@@ -32,29 +32,29 @@ type Item = { title: string; tagline: string; body: string }
 
 const ITEMS: Item[] = [
   {
-    title: "Grow Your Local Scene",
+    title: "Grow Your Campus Scene",
     tagline: "Meetups, Workshops, Hackathons",
-    body: "Bring the creators in your city together. We back you with event funding, ready-to-use content, swag, and promotion across ImagineArt's channels.",
+    body: "Bring the creators at your university together. We back you with event funding, ready-to-use content, and promotion across ImagineArt's channels to help your campus community grow.",
   },
   {
     title: "Create & Experiment",
     tagline: "Live Demos, Prototypes, Credits",
-    body: "Stay sharp and teach from experience by running live demos, prototyping workflows, and sharing what you know. Get monthly ImagineArt credits to power your sessions.",
+    body: "Teach from experience by running live demos and prototyping workflows, uplifting the creators across your campus with the power of AI in art and design. Get monthly ImagineArt credits to power your workshops and projects.",
   },
   {
     title: "Shape The Product",
     tagline: "Early Access, Feedback Sessions",
-    body: "Bring your community's perspective straight to the ImagineArt team. Get pre-release features and a seat in feedback sessions that influence what we build next.",
+    body: "Bring your student community's perspective straight to the ImagineArt team. Get pre-release features and a seat in feedback sessions that influence what we build next.",
   },
   {
     title: "Connect & Contribute",
     tagline: "Private Ambassador Network",
-    body: "Share what's working in your region and help shape how the program grows, through a private channel with fellow ambassadors and the ImagineArt team.",
+    body: "Swap what's working with student ambassadors on other campuses, and help shape how the program grows, through a private channel with fellow ambassadors and the ImagineArt team.",
   },
   {
     title: "Get Recognized",
     tagline: "Official Badge, Featured Profile",
-    body: "Wear a verified 'ImagineArt Ambassador' badge and get a featured profile across our community spaces.",
+    body: "Wear a verified 'ImagineArt Student Ambassador' badge and get a featured profile across our community spaces — a standout addition to your résumé and portfolio.",
   },
 ]
 
@@ -166,7 +166,7 @@ export default function AmbassadorWhatYouGet() {
       // width of the dots cluster, used to indent the expanded body text
       style={{ ["--dots-w" as string]: "59px" }}
     >
-      <div className="container-page relative py-16 md:py-24">
+      <div className="container-page relative pb-16 pt-32 md:pb-24 md:pt-48">
         {/* header row */}
         <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
           <h2
@@ -175,9 +175,9 @@ export default function AmbassadorWhatYouGet() {
           >
             What You Get
           </h2>
-          <p className="max-w-[34ch] font-sans text-[14px] leading-[1.6] text-content-secondary md:pt-2 md:text-right">
-            The ImagineArt Community Ambassadors program gives you everything you need to create a
-            thriving community of creators in your city.
+          <p className="max-w-[36ch] text-pretty font-sans text-[14px] leading-[1.6] text-content-secondary md:pt-2 md:text-right">
+            The ImagineArt Student Ambassador Program gives you everything you need to build a thriving
+            creative community at your university.
           </p>
         </Reveal>
 

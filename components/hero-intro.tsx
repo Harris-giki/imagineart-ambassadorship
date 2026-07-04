@@ -5,10 +5,9 @@
  *
  *   • Desktop (≥768px): the full parallax experience — IntroPreloader (which
  *     waits on the parallax assets) + the pinned CinematicIntro that reveals
- *     the hero.
- *   • Mobile (<768px): NO parallax. Start directly on the hero, which shows the
- *     `imagineart-hero-amb` photo as its background (AmbassadorHero
- *     withBackground). No preloader — nothing heavy to wait for.
+ *     the hero (the full-bleed imagineart-hero-amb photo with its 3D tilt).
+ *   • Mobile (<768px): NO parallax. Start directly on that same photo hero.
+ *     No preloader — nothing heavy to wait for.
  *
  * Decision is client-only (matchMedia). Until it resolves we render a plain
  * black full-screen placeholder: it matches both the desktop preloader and the
@@ -17,9 +16,8 @@
  */
 
 import { useEffect, useState } from "react"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import CinematicIntro from "@/components/cinematic-intro"
-import AmbassadorHero from "@/components/ambassador-hero"
+import AmbassadorHeroImage from "@/components/ambassador-hero-image"
 import IntroPreloader from "@/components/intro-preloader"
 
 type Mode = "pending" | "mobile" | "desktop"
@@ -35,20 +33,9 @@ export default function HeroIntro() {
     return () => mq.removeEventListener("change", apply)
   }, [])
 
-  // The hero/intro mounts AFTER the initial render (once `mode` resolves), which
-  // changes the page height — so any ScrollTrigger created earlier (e.g. the
-  // showcase pin) has a stale start position and would pin over the wrong
-  // section. Recalculate all triggers once the hero is in the layout, and again
-  // shortly after to catch async height changes (images/fonts settling).
-  useEffect(() => {
-    if (mode === "pending") return
-    const raf = requestAnimationFrame(() => ScrollTrigger.refresh())
-    const t = window.setTimeout(() => ScrollTrigger.refresh(), 450)
-    return () => {
-      cancelAnimationFrame(raf)
-      window.clearTimeout(t)
-    }
-  }, [mode])
+  // (ScrollTrigger recalculation is handled by the preloader — it refreshes once
+  // scroll is unlocked, while still behind the cover — so no refresh here. That
+  // avoids refreshing while scroll is locked, which measured a 0 scroll range.)
 
   // Pre-decision: a FIXED full-screen black cover (z-200, same as the loader)
   // from the very first painted frame. Critical: the AmbassadorHeroImage card
@@ -59,17 +46,18 @@ export default function HeroIntro() {
     return <div className="fixed inset-0 z-[200] bg-background" aria-hidden="true" />
   }
 
-  // Mobile: straight to the hero with the photo background, no parallax/loader.
+  // Mobile: straight to the full-bleed photo hero, no parallax/loader.
   if (mode === "mobile") {
-    return <AmbassadorHero withBackground />
+    return <AmbassadorHeroImage />
   }
 
-  // Desktop: preloader (gated to parallax assets) + the pinned parallax intro.
+  // Desktop: preloader (gated to parallax assets) + the pinned parallax intro,
+  // which cross-fades into the full-bleed photo hero.
   return (
     <>
       <IntroPreloader />
       <CinematicIntro>
-        <AmbassadorHero />
+        <AmbassadorHeroImage />
       </CinematicIntro>
     </>
   )
