@@ -16,14 +16,14 @@
 import Image from "next/image"
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card"
 
-const COLOR_SRC = "/images/imagineart-hero-amb.png"
+const COLOR_SRC = "/background-2.png"
 
 export default function AmbassadorHeroImage() {
   return (
     <section id="top" className="relative h-screen w-full overflow-hidden bg-background" aria-label="ImagineArt Ambassadors">
       {/* Inset: top clears the fixed navbar, bottom leaves spacing before the
           next section. Small side gutters → wide panel. */}
-      <div className="absolute inset-0 px-2 pb-20 pt-[84px] md:pb-28 md:pt-[100px]">
+      <div className="absolute inset-0 px-2 pb-6 pt-[78px] md:pb-8 md:pt-[92px]">
         <CardContainer containerClassName="h-full w-full" className="h-full w-full" maxTilt={4}>
           <CardBody className="relative h-full w-full overflow-hidden rounded-[22px] border border-white/10">
             {/* Image layer — fills the panel, floats slightly. Oversized so the
@@ -36,7 +36,7 @@ export default function AmbassadorHeroImage() {
                 fill
                 priority
                 sizes="100vw"
-                className="scale-105 object-cover object-[50%_18%]"
+                className="scale-105 object-cover object-[50%_38%]"
               />
             </CardItem>
 

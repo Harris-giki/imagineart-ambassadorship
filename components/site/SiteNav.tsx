@@ -96,7 +96,13 @@ export function SiteNav() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-1 shrink-0">
             <a
-              href="#apply"
+              href="https://tally.so/r/vGbDl8"
+              data-tally-open="vGbDl8"
+              data-tally-layout="modal"
+              data-tally-width="720"
+              data-tally-overlay="1"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center h-[34px] px-[16px] rounded-[22px] font-sans text-[13.5px] font-medium tracking-[0.14px] transition-all duration-200"
               style={{
                 background: "#fff",
@@ -177,7 +183,13 @@ export function SiteNav() {
 
             <div className="flex items-center justify-center gap-2.5 px-6">
               <a
-                href="#apply"
+                href="https://tally.so/r/vGbDl8"
+                data-tally-open="vGbDl8"
+                data-tally-layout="modal"
+                data-tally-width="720"
+                data-tally-overlay="1"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMenuOpen(false)}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-[14px] bg-white font-sans text-[14px] font-medium text-black"
               >

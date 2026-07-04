@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
+import Script from 'next/script'
 import { Analytics } from '@vercel/analytics/next'
 import 'lenis/dist/lenis.css'
 import './globals.css'
@@ -51,6 +52,8 @@ export default function RootLayout({
         {/* Site-wide smooth scrolling (Lenis), synced to GSAP ScrollTrigger. */}
         <SmoothScroll />
         {children}
+        {/* Tally embed — powers the "Apply Now" popup form (data-tally-open). */}
+        <Script src="https://tally.so/widgets/embed.js" strategy="afterInteractive" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

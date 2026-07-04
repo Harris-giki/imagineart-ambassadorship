@@ -196,11 +196,15 @@ export function FinalCta() {
           </p>
           <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row">
             <ButtonLink
-              href="https://discord.com/invite/z7kjUyvAbv"
+              href="https://tally.so/r/vGbDl8"
               variant="white"
               size="lg"
               target="_blank"
               rel="noopener noreferrer"
+              data-tally-open="vGbDl8"
+              data-tally-layout="modal"
+              data-tally-width="720"
+              data-tally-overlay="1"
             >
               Apply Now
             </ButtonLink>

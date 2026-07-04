@@ -166,7 +166,7 @@ export default function AmbassadorWhatYouGet() {
       // width of the dots cluster, used to indent the expanded body text
       style={{ ["--dots-w" as string]: "59px" }}
     >
-      <div className="container-page relative pb-16 pt-32 md:pb-24 md:pt-48">
+      <div className="container-page relative pb-16 pt-44 md:pb-24 md:pt-72">
         {/* header row */}
         <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
           <h2
