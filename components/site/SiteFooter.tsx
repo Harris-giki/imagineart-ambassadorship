@@ -71,7 +71,7 @@ export function SiteFooter() {
       {/* Dotted world-map backdrop */}
       <FooterMap />
 
-      <div className="relative z-10 max-w-[1240px] mx-auto px-5 md:px-10 pt-10 md:pt-14 pb-8">
+      <div className="relative z-10 max-w-[1240px] 2xl:max-w-[1440px] min-[1920px]:max-w-[1640px] mx-auto px-5 md:px-10 pt-10 md:pt-14 pb-8">
         <div className="flex flex-col md:flex-row items-start justify-between gap-8 md:gap-12 flex-wrap">
           {/* Brand */}
           <div className="flex flex-row md:flex-col w-full md:w-40 shrink-0 items-start justify-between md:justify-start gap-6 md:gap-8 flex-wrap">
@@ -101,7 +101,7 @@ export function SiteFooter() {
           </div>
 
           {/* Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 flex-1 min-w-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 2xl:gap-10 min-[1920px]:gap-12 flex-1 min-w-0">
             {COLUMNS.map((col) => (
               <div key={col.heading}>
                 <span className="block text-[11px] font-semibold tracking-[0.5px] text-white/[0.38] mb-5">{col.heading}</span>
@@ -126,12 +126,12 @@ export function SiteFooter() {
       </div>
 
       {/* Big watermark */}
-      <div className="relative z-10 max-w-[1240px] mx-auto text-center select-none pointer-events-none px-5 md:px-10 pt-4 leading-[0]">
-        <img src="/footer/watermark.svg" alt="" aria-hidden="true" className="w-full max-w-[1240px] h-auto inline-block" />
+      <div className="relative z-10 max-w-[1240px] 2xl:max-w-[1440px] min-[1920px]:max-w-[1640px] mx-auto text-center select-none pointer-events-none px-5 md:px-10 pt-4 leading-[0]">
+        <img src="/footer/watermark.svg" alt="" aria-hidden="true" className="w-full max-w-[1240px] 2xl:max-w-[1440px] min-[1920px]:max-w-[1640px] h-auto inline-block" />
       </div>
 
       {/* Bottom bar */}
-      <div className="relative z-10 max-w-[1240px] mx-auto px-5 md:px-10 pb-6 md:pb-8">
+      <div className="relative z-10 max-w-[1240px] 2xl:max-w-[1440px] min-[1920px]:max-w-[1640px] mx-auto px-5 md:px-10 pb-6 md:pb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-5 pb-2 border-t border-white/[0.06] flex-wrap">
           <div className="flex items-center gap-0.5 sm:ml-auto">
             {SOCIALS.map((s) => (

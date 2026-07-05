@@ -349,7 +349,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
               style={{
                 fontWeight: 600,
                 fontStretch: "condensed",
-                fontSize: "clamp(38px, 8vw, 138px)",
+                fontSize: "clamp(38px, 8vw, 176px)",
                 textShadow: "0 4px 34px rgba(0,0,0,0.5)",
                 transform: "translateY(-0.46em)", // stack as the top line
               }}
@@ -389,7 +389,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
               style={{
                 fontWeight: 600,
                 fontStretch: "condensed",
-                fontSize: "clamp(38px, 8vw, 138px)",
+                fontSize: "clamp(38px, 8vw, 176px)",
                 textShadow: "0 6px 40px rgba(0,0,0,0.62)",
                 transform: "translateY(0.46em)", // stack as the bottom line
               }}

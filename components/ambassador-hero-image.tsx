@@ -51,7 +51,7 @@ export default function AmbassadorHeroImage() {
                   ImagineArt Student Ambassador Program
                 </span>
                 <h2
-                  className="mt-3 font-display font-semibold capitalize leading-[1.02] tracking-[-0.5px] text-white"
+                  className="h-scale-hero-caption mt-3 font-display font-semibold capitalize leading-[1.02] tracking-[-0.5px] text-white"
                   style={{ fontSize: "clamp(28px, 4vw, 54px)" }}
                 >
                   Build &amp; Lead The Community

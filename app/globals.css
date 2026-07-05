@@ -168,6 +168,36 @@
       padding: 0 20px;
     }
   }
+  /* Large / wide displays: let the whole layout breathe wider so content isn't a
+     narrow 1240px column marooned in empty side margins on 16" laptops, external
+     1920/2560 monitors and ultrawide. Gated at >=1536px so 13"/15" laptops
+     (<=1512px) render EXACTLY as before. */
+  @media (min-width: 1536px) {
+    .container-page {
+      max-width: 1440px;
+      padding: 0 48px;
+    }
+  }
+  @media (min-width: 1920px) {
+    .container-page {
+      max-width: 1640px;
+      padding: 0 64px;
+    }
+  }
+
+  /* Signature headings grow past their base clamp cap on large displays. Their
+     base size is an inline clamp() (identical <=1512px); these gated rules use
+     !important to beat the inline value ONLY at >=1536px, and each new clamp's
+     floor equals the value the base caps at, so the size is seamless across the
+     1536px boundary and then keeps scaling with the viewport. */
+  @media (min-width: 1536px) {
+    .h-scale-what-you-get { font-size: clamp(132px, 8.6vw, 150px) !important; }
+    .h-scale-showcase {
+      font-size: clamp(76px, 4.95vw, 108px) !important;
+      max-width: min(80vw, 1180px) !important;
+    }
+    .h-scale-hero-caption { font-size: clamp(54px, 3.52vw, 76px) !important; }
+  }
 
   /* Reveal */
   .reveal {

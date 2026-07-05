@@ -237,7 +237,7 @@ function Headline() {
   return (
     <>
       <h2
-        className="mx-auto font-display uppercase leading-[0.95] tracking-[-0.02em] text-content-primary"
+        className="h-scale-showcase mx-auto font-display uppercase leading-[0.95] tracking-[-0.02em] text-content-primary"
         style={{
           // Smaller + fluid so it never touches the edges: caps at ~78vw width
           // and a much smaller max font-size than before (was 120px).

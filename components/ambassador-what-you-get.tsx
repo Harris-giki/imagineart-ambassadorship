@@ -174,7 +174,7 @@ export default function AmbassadorWhatYouGet() {
         {/* header row */}
         <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
           <h2
-            className="font-display uppercase leading-[0.9] tracking-[-0.02em] text-content-primary"
+            className="h-scale-what-you-get font-display uppercase leading-[0.9] tracking-[-0.02em] text-content-primary"
             style={{ fontSize: "clamp(36px, 9vw, 132px)", fontWeight: 600, fontStretch: "condensed" }}
           >
             What You Get
