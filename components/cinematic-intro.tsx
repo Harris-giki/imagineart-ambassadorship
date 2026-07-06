@@ -72,7 +72,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   // assets, and only these) finish loading. We broadcast load progress so the
   // preloader can show a bar and then lift to reveal the ready scene (there's
   // no separate scene entry animation — the preloader's fade IS the reveal).
-  const INTRO_ASSET_COUNT = 2 // original group photo + all-people occlusion cutout
+  const INTRO_ASSET_COUNT = 1 // single background-3 backdrop (temporary)
 
   // Recompute progress from the ACTUAL <img> state inside the scene (rather
   // than counting onLoad calls) so already-cached images — whose load event
@@ -331,40 +331,18 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             bleed). All layers share identical geometry so they crop together and
             stay perfectly registered. */}
         <div className="absolute inset-0 overflow-hidden">
-          {/* Depth from the REAL group photo. The deepest layer is the full
-              original shot (so the scene is ALWAYS pixel-faithful to the
-              reference — perfect positions/scale, nothing missing). On top sit
-              two in-place cutouts (cut directly from the original at their exact
-              spots) of the two front figures, so they parallax a hair more than
-              the plate for a subtle depth pop. All layers share identical
-              geometry (inset-0, 100%, object-cover) → at rest they recompose
-              into the exact original. Multipliers are tiny and deltas are small,
-              so registration never visibly breaks. */}
-
-          {/* 1. Full original group photo — deepest, guarantees exact framing */}
+          {/* Single backdrop (temporary) — background-3 fills the box. A subtle
+              mouse-parallax translate keeps a hint of depth; scale-105 keeps the
+              translate from ever exposing an edge inside the frame. */}
           <div
             className="absolute inset-0"
             style={{
               zIndex: 0,
-              transform: `translate3d(${mousePosition.x * 4}px, ${mousePosition.y * 4}px, 0)`,
+              transform: `translate3d(${mousePosition.x * 6}px, ${mousePosition.y * 6}px, 0)`,
               willChange: "transform",
             }}
           >
-            <Image src="/new-background/original.png" alt="ImagineArt Ambassadors" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
-          </div>
-
-          {/* 2. ALL PEOPLE — an in-place cutout of the whole group, sitting
-              ABOVE the title so the title reads fully BEHIND everyone. Pops a
-              little more than the backdrop for a subtle depth nudge. */}
-          <div
-            className="absolute inset-0"
-            style={{
-              zIndex: 10,
-              transform: `translate3d(${mousePosition.x * 8}px, ${mousePosition.y * 8}px, 0)`,
-              willChange: "transform",
-            }}
-          >
-            <Image src="/new-background/people_all.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            <Image src="/background-3.png" alt="ImagineArt Ambassadors" fill className="scale-105 object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
           {/* TITLE — bottom-left of the box: a small white "ImagineArt", a gold
@@ -380,29 +358,29 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             aria-hidden="true"
           >
             <span
-              className="block font-sans font-medium tracking-[0.04em] text-white"
-              style={{ fontSize: "clamp(14px, 1.4vw, 22px)", textShadow: "0 2px 14px rgba(0,0,0,0.55)" }}
+              className="mb-1 block font-sans font-medium tracking-[0.06em] text-content-tertiary"
+              style={{ fontSize: "clamp(10px, 0.8vw, 13px)", textShadow: "0 2px 14px rgba(0,0,0,0.55)" }}
             >
               ImagineArt
             </span>
             <span
-              className="block leading-[1.02]"
+              className="block leading-[1.0]"
               style={{
                 fontFamily: "var(--font-script), cursive",
-                fontWeight: 700,
+                fontWeight: 400,
                 color: "#E8B84B",
-                fontSize: "clamp(46px, 6.4vw, 108px)",
-                textShadow: "0 4px 24px rgba(0,0,0,0.5)",
+                fontSize: "clamp(40px, 5vw, 82px)",
+                textShadow: "0 4px 24px rgba(0,0,0,0.45)",
               }}
             >
               Students
             </span>
             <span
-              className="block font-display uppercase leading-[0.86] tracking-[-0.015em] text-white"
+              className="-mt-1 block font-display uppercase leading-[0.9] tracking-[-0.015em] text-white"
               style={{
                 fontWeight: 600,
                 fontStretch: "condensed",
-                fontSize: "clamp(34px, 5.6vw, 92px)",
+                fontSize: "clamp(26px, 4.2vw, 66px)",
                 textShadow: "0 6px 40px rgba(0,0,0,0.62)",
               }}
             >
