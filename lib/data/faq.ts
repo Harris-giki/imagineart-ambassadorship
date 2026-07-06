@@ -15,15 +15,11 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Do I need to live in a specific location?",
-    a: "Ambassadors are welcome worldwide, with a focus on key creative regions across the Americas, Europe, Australia, and Asia. Multiple ambassadors from the same city are welcome.",
+    a: "Ambassadors are welcome worldwide, with a focus on key creative regions across America, Europe, Australia, and Asia. Multiple ambassadors from the same city/university are welcome.",
   },
   {
     q: "What do ambassadors receive?",
-    a: "Event and challenge funding, an official verified ‘ImagineArt Ambassador’ badge and featured profile, a private Discord, early beta access to new models and features, and an ImagineArt subscription with up to 50k monthly credits.",
-  },
-  {
-    q: "How much time does it take?",
-    a: "Most ambassadors aim for around 4+ original posts, hosting one workshop or challenge, and staying active in the community each month. You set a pace that fits your life.",
+    a: "Event and challenge funding, an official verified ‘ImagineArt Student Ambassador’ badge and featured profile, a private Discord, early beta access to new models and features, and an ImagineArt Creator Subscription.",
   },
   {
     q: "Can I be an ambassador for other companies?",
