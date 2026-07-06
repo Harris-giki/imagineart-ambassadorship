@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
+import { Dancing_Script } from 'next/font/google'
 import Script from 'next/script'
 import { Analytics } from '@vercel/analytics/next'
 import 'lenis/dist/lenis.css'
@@ -13,6 +14,14 @@ const googleSans = localFont({
   variable: '--font-google-sans',
   display: 'swap',
   weight: '100 900',
+})
+
+// Script face — the gold cursive "Students" flourish in the intro title.
+const dancingScript = Dancing_Script({
+  subsets: ['latin'],
+  weight: ['700'],
+  variable: '--font-script',
+  display: 'swap',
 })
 
 // Responsive viewport (allow pinch-zoom for accessibility; cover the notch).
@@ -39,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={googleSans.variable}>
+    <html lang="en" className={`${googleSans.variable} ${dancingScript.variable}`}>
       <body className="font-sans antialiased">
         {/* Always start the experience from the top on every (re)load. Setting
             this before hydration stops the browser from restoring the previous

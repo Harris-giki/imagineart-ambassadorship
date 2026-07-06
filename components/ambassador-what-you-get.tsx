@@ -170,16 +170,41 @@ export default function AmbassadorWhatYouGet() {
       // width of the dots cluster, used to indent the expanded body text
       style={{ ["--dots-w" as string]: "59px" }}
     >
-      <div className="container-page relative">
-        {/* header row */}
-        <Reveal className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between md:gap-12">
+      {/* Faint grid backdrop behind the header — fades out before the body
+          (matches the reference). Kept subtle so the jet-black stays dominant. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "clamp(64px, 7vw, 120px) clamp(64px, 7vw, 120px)",
+          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 42%, transparent 72%)",
+          WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 42%, transparent 72%)",
+        }}
+      />
+      <div className="container-page relative z-10">
+        {/* header — two-tone stacked headline + purple accent underline + subtext */}
+        <Reveal className="max-w-[920px]">
           <h2
-            className="h-scale-what-you-get font-display uppercase leading-[0.9] tracking-[-0.02em] text-content-primary"
-            style={{ fontSize: "clamp(36px, 9vw, 132px)", fontWeight: 600, fontStretch: "condensed" }}
+            className="font-display leading-none tracking-[-0.01em]"
+            style={{ fontSize: "clamp(38px, 7vw, 88px)", fontWeight: 600 }}
           >
-            What You Get
+            <span className="block text-content-primary">What&apos;s In It</span>
+            <span className="block text-white/30">For You</span>
           </h2>
-          <p className="max-w-[36ch] text-pretty font-sans text-[14px] leading-[1.6] text-content-secondary md:pt-2 md:text-right">
+
+          {/* purple accent underline (soft glow) */}
+          <div
+            aria-hidden
+            className="mt-5 h-[3px] w-[clamp(150px,24vw,340px)] rounded-full md:mt-6"
+            style={{
+              background: "linear-gradient(90deg, #8A3FFC 0%, rgba(138,63,252,0.6) 55%, transparent 100%)",
+              boxShadow: "0 0 22px rgba(138,63,252,0.5)",
+            }}
+          />
+
+          <p className="mt-7 max-w-[46ch] text-pretty font-sans text-[16px] leading-[1.7] text-content-secondary md:mt-9 md:text-[18px]">
             The ImagineArt Student Ambassador Program gives you everything you need to build a thriving
             creative community at your university.
           </p>

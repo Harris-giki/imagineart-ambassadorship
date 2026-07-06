@@ -191,7 +191,6 @@
      floor equals the value the base caps at, so the size is seamless across the
      1536px boundary and then keeps scaling with the viewport. */
   @media (min-width: 1536px) {
-    .h-scale-what-you-get { font-size: clamp(132px, 8.6vw, 150px) !important; }
     .h-scale-showcase {
       font-size: clamp(76px, 4.95vw, 108px) !important;
       max-width: min(80vw, 1180px) !important;

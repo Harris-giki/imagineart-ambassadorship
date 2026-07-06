@@ -20,7 +20,7 @@ import { SiteNav } from "@/components/site/SiteNav"
 import { SiteFooter } from "@/components/site/SiteFooter"
 import { FaqSection } from "@/components/site/FaqSection"
 import HeroIntro from "@/components/hero-intro"
-import { WhoWeWant, HowItWorks } from "@/components/ambassador-sections"
+import { WhoWeWant } from "@/components/ambassador-sections"
 import AmbassadorWhatYouGet from "@/components/ambassador-what-you-get"
 import ShowcaseScrollSection from "@/components/showcase-scroll-section"
 import { getShowcaseImages } from "@/lib/showcase-images"
@@ -41,7 +41,6 @@ export default function Page() {
       <WhoWeWant />
       {/* Pinned showcase: headline holds still while images glide up over it. */}
       <ShowcaseScrollSection images={showcaseImages} />
-      <HowItWorks />
       <FaqSection />
       <SiteFooter />
     </>

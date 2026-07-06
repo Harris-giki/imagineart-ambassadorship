@@ -50,6 +50,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { getLenisInstance } from "@/lib/lenis-instance"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -279,6 +280,18 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
     return () => ctx.revert() // tears down ScrollTrigger + matchMedia
   }, [])
 
+  // "Learn More" → smooth-scroll past the pinned intro to the first section,
+  // driven through Lenis so the pin/scrub follow (a native hash jump would
+  // desync from Lenis' virtual scroll). Falls back to native if Lenis is off.
+  const handleLearnMore = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const target = document.querySelector("#what-you-get") as HTMLElement | null
+    if (!target) return
+    const lenis = getLenisInstance()
+    if (lenis) lenis.scrollTo(target, { offset: -80, duration: 1.2 })
+    else target.scrollIntoView({ behavior: "smooth" })
+  }
+
   return (
     // Pinned stage — exactly one viewport tall. overflow-hidden keeps the
     // zoomed scene from spilling onto the rest of the page.
@@ -295,16 +308,23 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         </div>
       )}
 
-      {/* ===== ZOOMING SCENE =================================================
-          GSAP scales THIS wrapper about its center (transform-origin 50% 50%)
-          so the zoom origin is always the middle of the screen. The children
-          keep their own mouse/gyro parallax (translate) + entry (`scale:`)
-          animations, which compose with the parent scale. */}
-      <div
-        ref={sceneRef}
-        className="absolute inset-0"
-        style={{ transformOrigin: "50% 50%", willChange: "transform" }}
-      >
+      {/* ===== FRAMED HERO BOX =============================================
+          The intro sits in a rounded card inset from the edges (black margins),
+          matching the post-intro hero panel's box EXACTLY (left/right-2, top
+          92px, bottom-8, rounded-22) so the black-out crossfades seamlessly from
+          this box into that one. z-20 → below the hero reveal (z-30) and overlay
+          (z-40), so both cover it (and the buttons) during the transition. */}
+      <div className="absolute left-8 right-8 top-[78px] bottom-6 z-20 overflow-hidden rounded-[22px] border border-white/10 md:left-14 md:right-14 md:top-[92px] md:bottom-8">
+        {/* ===== ZOOMING SCENE ===============================================
+            GSAP scales THIS wrapper about its center (transform-origin 50% 50%)
+            so the zoom origin is always the middle of the box. The children keep
+            their own mouse/gyro parallax (translate), which composes with the
+            parent scale. overflow-hidden on the frame clips the zoom to the box. */}
+        <div
+          ref={sceneRef}
+          className="absolute inset-0"
+          style={{ transformOrigin: "50% 50%", willChange: "transform" }}
+        >
         {/* FULL-BLEED STAGE — fills the whole viewport edge to edge. Every layer
             is object-cover, so the 16:9 assets cover the screen (a little top/
             bottom is cropped on ultra-wide screens, which is the trade for full
@@ -333,31 +353,6 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             <Image src="/new-background/original.png" alt="ImagineArt Ambassadors" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 1b. "COMMUNITY" — IN FRONT of the group (top line), fully visible,
-              stacked directly above AMBASSADORS as one title over the scene. */}
-          <div
-            className="absolute inset-0 flex items-center justify-center px-6 pt-[15vh] text-center"
-            style={{
-              zIndex: 25,
-              transform: `translate3d(${mousePosition.x * 10}px, ${mousePosition.y * 10}px, 0)`,
-              willChange: "transform",
-            }}
-            aria-hidden="true"
-          >
-            <span
-              className="font-display uppercase leading-[0.82] tracking-[-0.015em] text-white"
-              style={{
-                fontWeight: 600,
-                fontStretch: "condensed",
-                fontSize: "clamp(38px, 8vw, 176px)",
-                textShadow: "0 4px 34px rgba(0,0,0,0.5)",
-                transform: "translateY(-0.46em)", // stack as the top line
-              }}
-            >
-              Community
-            </span>
-          </div>
-
           {/* 2. ALL PEOPLE — an in-place cutout of the whole group, sitting
               ABOVE the title so the title reads fully BEHIND everyone. Pops a
               little more than the backdrop for a subtle depth nudge. */}
@@ -372,11 +367,11 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             <Image src="/new-background/people_all.png" alt="" aria-hidden="true" fill className="object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
           </div>
 
-          {/* 3. "AMBASSADORS" — IN FRONT of the group (bottom line), fully
-              visible over the people. Highest scene layer (still below the
-              black-out/hero). Pops the most for depth. */}
+          {/* TITLE — bottom-left of the box: a small white "ImagineArt", a gold
+              cursive "Students", then "Ambassadors" in the display face. Sits in
+              front of the group (z-25) and parallaxes with the scene. */}
           <div
-            className="absolute inset-0 flex items-center justify-center px-6 pt-[15vh] text-center"
+            className="absolute bottom-6 left-6 text-left md:bottom-10 md:left-12"
             style={{
               zIndex: 25,
               transform: `translate3d(${mousePosition.x * 10}px, ${mousePosition.y * 10}px, 0)`,
@@ -385,18 +380,61 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             aria-hidden="true"
           >
             <span
-              className="font-display uppercase leading-[0.82] tracking-[-0.015em] text-white"
+              className="block font-sans font-medium tracking-[0.04em] text-white"
+              style={{ fontSize: "clamp(14px, 1.4vw, 22px)", textShadow: "0 2px 14px rgba(0,0,0,0.55)" }}
+            >
+              ImagineArt
+            </span>
+            <span
+              className="block leading-[1.02]"
+              style={{
+                fontFamily: "var(--font-script), cursive",
+                fontWeight: 700,
+                color: "#E8B84B",
+                fontSize: "clamp(46px, 6.4vw, 108px)",
+                textShadow: "0 4px 24px rgba(0,0,0,0.5)",
+              }}
+            >
+              Students
+            </span>
+            <span
+              className="block font-display uppercase leading-[0.86] tracking-[-0.015em] text-white"
               style={{
                 fontWeight: 600,
                 fontStretch: "condensed",
-                fontSize: "clamp(38px, 8vw, 176px)",
+                fontSize: "clamp(34px, 5.6vw, 92px)",
                 textShadow: "0 6px 40px rgba(0,0,0,0.62)",
-                transform: "translateY(0.46em)", // stack as the bottom line
               }}
             >
               Ambassadors
             </span>
           </div>
+        </div>
+      </div>
+
+        {/* CTA buttons — bottom-right of the framed hero, over the scene. They
+            live in the frame (not the zooming scene) so they stay put, and are
+            covered by the hero reveal / black-out during the scroll transition. */}
+        <div className="absolute bottom-6 right-6 z-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center md:bottom-10 md:right-10">
+          <a
+            href="https://tally.so/r/vGbDl8"
+            data-tally-open="vGbDl8"
+            data-tally-layout="modal"
+            data-tally-width="720"
+            data-tally-overlay="1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-sans text-[14.5px] font-medium text-black shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-transform duration-200 hover:scale-[1.03]"
+          >
+            Become an Ambassador
+          </a>
+          <a
+            href="#what-you-get"
+            onClick={handleLearnMore}
+            className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-sans text-[14.5px] font-medium text-white backdrop-blur-md transition-colors duration-200 hover:border-white/50 hover:bg-white/10"
+          >
+            Learn More
+          </a>
         </div>
       </div>
 
