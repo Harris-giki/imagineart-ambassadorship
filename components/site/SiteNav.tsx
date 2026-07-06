@@ -139,7 +139,25 @@ export function SiteNav() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-1 shrink-0">
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
+            {/* Launch App — ghost (grey outline + grey text, transparent fill) → imagine.art */}
+            <a
+              href="https://www.imagine.art"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center h-[34px] px-[16px] rounded-[22px] font-sans text-[13.5px] font-medium tracking-[0.14px] transition-colors duration-200"
+              style={{ background: "transparent", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.28)" }}
+              onMouseEnter={(e) => {
+                ;(e.currentTarget as HTMLElement).style.color = "#fff"
+                ;(e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.5)"
+              }}
+              onMouseLeave={(e) => {
+                ;(e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"
+                ;(e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.28)"
+              }}
+            >
+              Launch App
+            </a>
             <a
               href="https://tally.so/r/vGbDl8"
               data-tally-open="vGbDl8"
