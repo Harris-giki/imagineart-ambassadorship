@@ -92,6 +92,15 @@ export function FaqSection() {
             >
               Got any questions <span className="text-white/35">left?</span>
             </h2>
+            {/* purple accent underline (left-aligned, matches the other sections) */}
+            <div
+              aria-hidden
+              className="mt-5 h-[3px] w-[clamp(120px,16vw,220px)] rounded-full"
+              style={{
+                background: "linear-gradient(90deg, #8A3FFC 0%, rgba(138,63,252,0.6) 55%, transparent 100%)",
+                boxShadow: "0 0 20px rgba(138,63,252,0.5)",
+              }}
+            />
             <p className="font-sans text-[17px] leading-[1.7] text-content-secondary max-w-[36ch] mt-5 tracking-[-0.005em]">
               We&apos;ve answered the most common questions below.
             </p>

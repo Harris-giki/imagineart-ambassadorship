@@ -211,14 +211,12 @@ export default function AmbassadorWhatYouGet() {
         </Reveal>
 
         {/* two columns: globe on the left, accordion on the right */}
-        <div className="mt-12 flex flex-col gap-12 md:mt-16 lg:flex-row lg:items-start lg:gap-16">
-          {/* LEFT — just the globe (sticky so it stays in view while the list
-              scrolls). Hidden on small screens where there's no side column. */}
+        <div className="mt-12 flex flex-col gap-12 md:mt-16 lg:flex-row lg:items-center lg:gap-16">
+          {/* LEFT — the globe, vertically centered against the accordion list.
+              Hidden on small screens where there's no side column. */}
           <div className="hidden lg:block lg:w-[42%] lg:shrink-0">
-            <div className="sticky top-24">
-              <div className="mx-auto aspect-square w-full max-w-[460px]">
-                {showGlobe && <Globe />}
-              </div>
+            <div className="mx-auto aspect-square w-full max-w-[460px]">
+              {showGlobe && <Globe />}
             </div>
           </div>
 

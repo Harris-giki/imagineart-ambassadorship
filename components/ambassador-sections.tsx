@@ -8,9 +8,10 @@
  * eyebrow → heading → body, separated by hairline borders.
  */
 
-import { Users, Sparkles, GraduationCap, type LucideIcon } from "lucide-react"
+import Image from "next/image"
 import { Reveal } from "@/components/primitives/Reveal"
 import { ButtonLink } from "@/components/site/Button"
+import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card"
 
 /* ---------- shared bits ---------------------------------------------------- */
 
@@ -35,19 +36,25 @@ function SectionHeading({ children, className = "" }: { children: React.ReactNod
 
 /* ---------- data ----------------------------------------------------------- */
 
-const PROFILES: { icon: LucideIcon; title: string; body: string }[] = [
+const PROFILES: { image: string; eyebrow: string; n: string; title: string; body: string }[] = [
   {
-    icon: Users,
+    image: "/background-1-1.png",
+    eyebrow: "Community · Builders",
+    n: "01",
     title: "Community Builders",
     body: "You bring students together and uplift their creative workflow by organizing meetups, leading campus groups, or holding a visible presence on Discord, Reddit, or X.",
   },
   {
-    icon: Sparkles,
+    image: "/background-1-2.png",
+    eyebrow: "Top · Creators",
+    n: "02",
     title: "Top Creators",
     body: "You consistently create stunning content with ImagineArt and engage positively and frequently in community spaces.",
   },
   {
-    icon: GraduationCap,
+    image: "/background-1-4.png",
+    eyebrow: "Students · Campus",
+    n: "03",
     title: "Students & Campus Leaders",
     body: "You’re enrolled at a leading university and want to grow AI art culture on your campus through workshops and meetups.",
   },
@@ -97,36 +104,123 @@ function DottedCell({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * AmbassadorCard — an image-backed bento card: full-bleed photo with legibility
+ * scrims (strong at the bottom, soft at the top), a mono uppercase eyebrow +
+ * index at the top, and the title + description at the bottom-left.
+ */
+function AmbassadorCard({
+  image,
+  eyebrow,
+  n,
+  title,
+  body,
+  priority = false,
+  className = "",
+}: {
+  image: string
+  eyebrow: string
+  n: string
+  title: string
+  body: string
+  priority?: boolean
+  className?: string
+}) {
+  return (
+    <CardContainer
+      containerClassName={`aspect-[16/11] w-full md:aspect-auto md:h-full ${className}`}
+      className="h-full w-full"
+      maxTilt={7}
+    >
+      <CardBody className="group relative h-full w-full overflow-hidden">
+        {/* image — the base plane */}
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+        />
+        {/* legibility scrims (above the image, below the floating text) */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/55 to-transparent" />
+
+        {/* eyebrow (top-left) + index (top-right) — float toward the viewer */}
+        <CardItem
+          translateZ={50}
+          className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-5 md:p-6"
+        >
+          <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[2px] text-white/60">
+            {eyebrow}
+          </span>
+          <span className="font-mono text-[11px] font-semibold tracking-[1px] text-white/45">{n}</span>
+        </CardItem>
+
+        {/* title + body (bottom-left) — float highest */}
+        <CardItem
+          translateZ={70}
+          className="pointer-events-none absolute inset-x-0 bottom-0 p-5 md:p-7"
+        >
+          <h3
+            className="font-display font-semibold capitalize leading-[1.1] tracking-[-0.3px] text-white"
+            style={{ fontSize: "clamp(21px, 1.7vw, 30px)" }}
+          >
+            {title}
+          </h3>
+          <p className="mt-2.5 max-w-[44ch] text-pretty font-sans text-[14px] leading-[1.6] text-white/75 md:text-[15px]">
+            {body}
+          </p>
+        </CardItem>
+      </CardBody>
+    </CardContainer>
+  )
+}
+
 export function WhoWeWant() {
   return (
     <section id="who" className="bg-background">
       {/* padding-block: clamp(96px, 12vh, 180px) → guaranteed empty black above
           and below so the two sections can never kiss/overlap. */}
-      <div className="container-page" style={{ paddingBlock: "clamp(96px, 12vh, 180px)" }}>
-        <Reveal className="mx-auto max-w-[680px] text-center">
-          <SectionHeading>Our Ambassadors</SectionHeading>
-          <p className="mx-auto mt-6 max-w-[56ch] font-sans text-[17px] leading-[1.7] tracking-[-0.005em] text-content-secondary">
-            If you&apos;re active in your community and want to go further with ImagineArt&apos;s support, we
-            encourage you to apply. No professional title required.
-          </p>
-        </Reveal>
+      <div style={{ paddingBlock: "clamp(96px, 12vh, 180px)" }}>
+        <div className="container-page">
+          <Reveal className="mx-auto flex max-w-[900px] flex-col items-center text-center">
+            <h2
+              className="font-display leading-[0.98] tracking-[-0.01em]"
+              style={{ fontSize: "clamp(34px, 6vw, 88px)", fontWeight: 600 }}
+            >
+              <span className="text-content-primary">Our </span>
+              <span className="text-content-brand">Ambassadors</span>
+            </h2>
+            {/* purple accent underline (matches the reference) */}
+            <div
+              aria-hidden
+              className="mt-5 h-[3px] w-[clamp(120px,18vw,240px)] rounded-full"
+              style={{
+                background: "linear-gradient(90deg, transparent 0%, #8A3FFC 50%, transparent 100%)",
+                boxShadow: "0 0 20px rgba(138,63,252,0.5)",
+              }}
+            />
+            <p className="mt-7 max-w-[56ch] font-sans text-[17px] leading-[1.7] tracking-[-0.005em] text-content-secondary">
+              If you&apos;re active in your community and want to go further with ImagineArt&apos;s support, we
+              encourage you to apply. No professional title required.
+            </p>
+          </Reveal>
+        </div>
 
-        {/* header → grid gap: 80px (mt-20). */}
+        {/* Bento — FULL-BLEED (edge to edge), cards touching: no gaps, no
+            rounding, no borders. One tall card left, two stacked right. */}
         <Reveal className="mt-16 md:mt-20">
-          <DottedGrid>
-            {PROFILES.map((p) => (
-              <DottedCell key={p.title}>
-                <p.icon size={22} strokeWidth={1.5} className="text-content-primary" />
-                {/* icon → title 20px, title → body 16px */}
-                <h3 className="mt-5 font-display text-[19px] font-medium capitalize tracking-[-0.2px] text-content-primary">
-                  {p.title}
-                </h3>
-                <p className="mt-4 max-w-[42ch] font-sans text-[15px] leading-[1.7] text-content-secondary">
-                  {p.body}
-                </p>
-              </DottedCell>
+          <div className="grid grid-cols-1 md:h-[640px] md:grid-cols-2 md:grid-rows-2 lg:h-[720px]">
+            {PROFILES.map((p, i) => (
+              <AmbassadorCard
+                key={p.title}
+                {...p}
+                priority={i === 0}
+                className={i === 0 ? "md:row-span-2" : ""}
+              />
             ))}
-          </DottedGrid>
+          </div>
         </Reveal>
       </div>
     </section>

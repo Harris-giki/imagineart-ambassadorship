@@ -23,9 +23,9 @@ export default function AmbassadorHeroImage() {
     <section id="top" className="relative h-screen w-full overflow-hidden bg-background" aria-label="ImagineArt Ambassadors">
       {/* Inset: top clears the fixed navbar, bottom leaves spacing before the
           next section. Small side gutters → wide panel. */}
-      <div className="absolute inset-0 px-2 pb-6 pt-[78px] md:pb-8 md:pt-[92px]">
+      <div className="absolute inset-0">
         <CardContainer containerClassName="h-full w-full" className="h-full w-full" maxTilt={4}>
-          <CardBody className="relative h-full w-full overflow-hidden rounded-[22px] border border-white/10">
+          <CardBody className="relative h-full w-full overflow-hidden">
             {/* Image layer — fills the panel, floats slightly. Oversized so the
                 tilt never exposes a hard edge. object-position biased UP so the
                 group's heads/umbrellas aren't cropped at the top. */}
@@ -46,7 +46,7 @@ export default function AmbassadorHeroImage() {
 
             {/* Caption — floats highest, over a bottom legibility gradient. */}
             <CardItem translateZ={70} className="pointer-events-none absolute inset-x-0 bottom-0">
-              <div className="rounded-b-[22px] bg-gradient-to-t from-black/80 via-black/35 to-transparent px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
+              <div className="bg-gradient-to-t from-black/80 via-black/35 to-transparent px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[1.8px] text-white/60 md:text-[11px]">
                   ImagineArt Student Ambassador Program
                 </span>

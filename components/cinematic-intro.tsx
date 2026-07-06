@@ -67,6 +67,13 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   const frameRef = useRef<number | null>(null)
   const lastUpdateRef = useRef<number>(0)
 
+  // Backdrop carousel — crossfade background-3 -> 4 -> 5 on a timer; the 3 dots
+  // (bottom-right) show the active slide. The extras mount just after first
+  // paint so the preloader gates on background-3 alone.
+  const BACKDROPS = ["/background-3.png", "/background-4.png", "/background-5.png"]
+  const [activeBg, setActiveBg] = useState(0)
+  const [extraReady, setExtraReady] = useState(false)
+
   // ---- Preloader sync -----------------------------------------------------
   // The IntroPreloader covers the screen until THESE images (the parallax
   // assets, and only these) finish loading. We broadcast load progress so the
@@ -104,6 +111,21 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Mount the extra backdrops shortly after first paint (keeps the preloader
+  // gated on background-3 only), then crossfade 3 -> 4 -> 5 on a loop.
+  useEffect(() => {
+    const t = window.setTimeout(() => setExtraReady(true), 600)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    if (!extraReady) return
+    const id = window.setInterval(() => {
+      setActiveBg((i) => (i + 1) % 3)
+    }, 4000)
+    return () => window.clearInterval(id)
+  }, [extraReady])
 
   // ---- Phase 2 refs (elements GSAP owns) ----------------------------------
   const rootRef = useRef<HTMLDivElement>(null) // pinned section / scroll trigger
@@ -331,9 +353,10 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             bleed). All layers share identical geometry so they crop together and
             stay perfectly registered. */}
         <div className="absolute inset-0 overflow-hidden">
-          {/* Single backdrop (temporary) — background-3 fills the box. A subtle
-              mouse-parallax translate keeps a hint of depth; scale-105 keeps the
-              translate from ever exposing an edge inside the frame. */}
+          {/* Backdrop carousel — background-3/4/5 crossfade on a timer (dots at
+              bottom-right scrub it). Only bg-3 is mounted up front (priority) so
+              the preloader gates on it alone; the rest mount just after. A subtle
+              mouse-parallax translate + scale-105 keep depth without edge reveal. */}
           <div
             className="absolute inset-0"
             style={{
@@ -342,7 +365,24 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
               willChange: "transform",
             }}
           >
-            <Image src="/background-3.png" alt="ImagineArt Ambassadors" fill className="scale-105 object-cover" priority sizes="100vw" onLoad={handleAssetLoad} onError={handleAssetLoad} />
+            {BACKDROPS.map((src, i) =>
+              i > 0 && !extraReady ? null : (
+                <Image
+                  key={src}
+                  src={src}
+                  alt={i === 0 ? "ImagineArt Ambassadors" : ""}
+                  aria-hidden={i === 0 ? undefined : true}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  onLoad={i === 0 ? handleAssetLoad : undefined}
+                  onError={i === 0 ? handleAssetLoad : undefined}
+                  className={`scale-105 object-cover transition-opacity duration-[1200ms] ease-in-out ${
+                    i === activeBg ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ),
+            )}
           </div>
 
           {/* TITLE — bottom-left of the box: a small white "ImagineArt", a gold
@@ -358,18 +398,12 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             aria-hidden="true"
           >
             <span
-              className="mb-1 block font-sans font-medium tracking-[0.06em] text-content-tertiary"
-              style={{ fontSize: "clamp(10px, 0.8vw, 13px)", textShadow: "0 2px 14px rgba(0,0,0,0.55)" }}
-            >
-              ImagineArt
-            </span>
-            <span
               className="block leading-[1.0]"
               style={{
                 fontFamily: "var(--font-script), cursive",
                 fontWeight: 400,
                 color: "#E8B84B",
-                fontSize: "clamp(40px, 5vw, 82px)",
+                fontSize: "clamp(48px, 6vw, 100px)",
                 textShadow: "0 4px 24px rgba(0,0,0,0.45)",
               }}
             >
@@ -390,29 +424,45 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
         </div>
       </div>
 
-        {/* CTA buttons — bottom-right of the framed hero, over the scene. They
-            live in the frame (not the zooming scene) so they stay put, and are
-            covered by the hero reveal / black-out during the scroll transition. */}
-        <div className="absolute bottom-6 right-6 z-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center md:bottom-10 md:right-10">
-          <a
-            href="https://tally.so/r/vGbDl8"
-            data-tally-open="vGbDl8"
-            data-tally-layout="modal"
-            data-tally-width="720"
-            data-tally-overlay="1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-sans text-[14.5px] font-medium text-black shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-transform duration-200 hover:scale-[1.03]"
-          >
-            Become an Ambassador
-          </a>
-          <a
-            href="#what-you-get"
-            onClick={handleLearnMore}
-            className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-sans text-[14.5px] font-medium text-white backdrop-blur-md transition-colors duration-200 hover:border-white/50 hover:bg-white/10"
-          >
-            Learn More
-          </a>
+        {/* CTA buttons + slide dots — bottom-right of the framed hero, over the
+            scene. They live in the frame (not the zooming scene) so they stay put,
+            and are covered by the hero reveal / black-out during the transition. */}
+        <div className="absolute bottom-6 right-6 z-10 flex flex-col items-end gap-4 md:bottom-10 md:right-10">
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+            <a
+              href="https://tally.so/r/vGbDl8"
+              data-tally-open="vGbDl8"
+              data-tally-layout="modal"
+              data-tally-width="720"
+              data-tally-overlay="1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 font-sans text-[14.5px] font-medium text-black shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-transform duration-200 hover:scale-[1.03]"
+            >
+              Become an Ambassador
+            </a>
+            <a
+              href="#what-you-get"
+              onClick={handleLearnMore}
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-sans text-[14.5px] font-medium text-white backdrop-blur-md transition-colors duration-200 hover:border-white/50 hover:bg-white/10"
+            >
+              Learn More
+            </a>
+          </div>
+          {/* 3 dots — which backdrop is showing (click to jump) */}
+          <div className="flex items-center gap-2 pr-1">
+            {BACKDROPS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveBg(i)}
+                aria-label={`Show background ${i + 1}`}
+                className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                  i === activeBg ? "bg-white" : "bg-white/35 hover:bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
