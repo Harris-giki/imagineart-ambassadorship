@@ -53,7 +53,7 @@ const PROFILES: { image: string; eyebrow: string; n: string; title: string; body
     body: "You consistently create stunning content with ImagineArt and engage positively and frequently in community spaces.",
   },
   {
-    image: "/showcase-images/nn.JPG",
+    image: "/showcase-images/ba.jpg",
     eyebrow: "Students · Campus",
     n: "03",
     title: "Students & Campus Leaders",
@@ -193,8 +193,8 @@ export function WhoWeWant() {
               className="font-display leading-[0.98] tracking-[-0.01em]"
               style={{ fontSize: "clamp(34px, 6vw, 88px)", fontWeight: 600 }}
             >
-              <span className="text-content-primary">Our </span>
-              <span className="text-content-brand">Ambassadors</span>
+              <span className="text-content-primary">Who&apos;s It </span>
+              <span className="text-content-brand">For</span>
             </h2>
             {/* purple accent underline (matches the reference) */}
             <div

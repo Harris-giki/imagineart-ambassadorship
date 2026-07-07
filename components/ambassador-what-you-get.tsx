@@ -1,30 +1,27 @@
 "use client"
 
 /**
- * AmbassadorWhatYouGet — the "What You Get" section, rebuilt as a services-style
- * accordion (matching the supplied reference):
+ * AmbassadorWhatYouGet — "What's In It / For You".
  *
- *   Header row: huge flush-left heading + short right-aligned description.
- *   Below, two columns: a wireframe Globe on the LEFT, the accordion on the
- *   RIGHT (each row: dots / Title / TAGLINE / chevron; click to expand).
+ *   Header (normal flow): two-tone stacked headline + purple underline + subtext.
  *
- * Behavior:
- *   • One row open at a time (accordion); first row open by default.
- *   • Row title highlights light purple on hover / when open (FAQ color).
- *   • Expand/collapse animates height (grid-rows 0fr→1fr) + opacity ~300ms.
- *   • prefers-reduced-motion → instant (motion-reduce:transition-none).
- *   • The 5-dot indicator increments its filled count per row (decorative).
+ *   Below it, a PINNED scroll carousel (desktop, lg+, no reduced-motion):
+ *   the wireframe Globe holds on the left while ONE item (heading + tagline +
+ *   body) shows on the right, vertically centered against the globe. Scrolling
+ *   advances through the items with a crossfade; a single 5-dot row marks the
+ *   active step — the highlight moves horizontally across the fixed grid (colour
+ *   only, the dots never animate position).
  *
- * Background is the seamless jet-black page token; rows are separated by
- * hairline borders only (no fills, no grid texture).
- * Uses only existing design tokens (background / border-primary / content-*),
- * the shared container width, and the project fonts.
+ *   Mobile / reduced-motion: a plain stacked list of every item (no pin).
  */
 
-import { useEffect, useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { Reveal } from "@/components/primitives/Reveal"
 import Globe from "@/components/globe"
+
+gsap.registerPlugin(ScrollTrigger)
 
 /* ---------- content -------------------------------------------------------- */
 
@@ -58,123 +55,101 @@ const ITEMS: Item[] = [
   },
 ]
 
-const DOT_COUNT = 5
-
 /* ---------- small parts ---------------------------------------------------- */
 
-/** Five dots, the first `filled` of them bright, the rest dimmed. */
-function Dots({ filled }: { filled: number }) {
+/** Fixed row of dots; the `active` one is bright, the rest dimmed. The highlight
+ *  moves horizontally as the active step changes (colour only — no motion). */
+function Dots({ active }: { active: number }) {
   return (
-    <span className="flex shrink-0 items-center gap-1.5" aria-hidden="true">
-      {Array.from({ length: DOT_COUNT }).map((_, i) => (
+    <span className="flex items-center gap-2.5" aria-hidden="true">
+      {ITEMS.map((_, i) => (
         <span
           key={i}
-          className={`h-[7px] w-[7px] rounded-full ${i < filled ? "bg-content-primary" : "bg-white/20"}`}
+          className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+            i === active ? "bg-content-primary" : "bg-white/20"
+          }`}
         />
       ))}
     </span>
   )
 }
 
-function AccordionRow({
-  item,
-  filled,
-  open,
-  onToggle,
-}: {
-  item: Item
-  filled: number
-  open: boolean
-  onToggle: () => void
-}) {
+/** One item's heading + tagline + body (used in both the pinned card and list). */
+function ItemContent({ item }: { item: Item }) {
   return (
-    <div className="border-b border-border-primary">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="group flex w-full items-start gap-5 py-6 text-left md:gap-10"
+    <>
+      <h3
+        className="font-sans font-medium tracking-[-0.01em] text-content-brand"
+        style={{ fontSize: "clamp(24px, 2.5vw, 36px)" }}
       >
-        {/* dots — aligned to the title line; hidden on very small screens */}
-        <span className="mt-1 hidden sm:block">
-          <Dots filled={filled} />
-        </span>
-
-        {/* title + tagline — title highlights light purple on hover / when open
-            (matches the FAQ open-state color) */}
-        <span className="min-w-0 flex-1">
-          <span
-            className={`block font-sans text-[18px] font-medium tracking-[-0.01em] transition-colors md:text-[19px] ${
-              open ? "text-[#C8AAFF]" : "text-content-primary group-hover:text-[#C8AAFF]"
-            }`}
-          >
-            {item.title}
-          </span>
-          <span className="mt-1.5 block font-mono text-[11px] font-medium uppercase tracking-[1.6px] text-content-tertiary">
-            {item.tagline}
-          </span>
-        </span>
-
-        {/* chevron — rotates when open */}
-        <ChevronDown
-          size={20}
-          strokeWidth={1.75}
-          className={`mt-1 shrink-0 text-content-secondary transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-
-      {/* expanding body */}
-      <div
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        }`}
-      >
-        <div className="overflow-hidden">
-          {/* left padding aligns the body with the title column (dots + gap) */}
-          <p className="max-w-[64ch] pb-7 font-sans text-[15.5px] leading-[1.72] text-content-secondary sm:pl-[calc(1.25rem+var(--dots-w))] md:pl-[calc(2.5rem+var(--dots-w))]">
-            {item.body}
-          </p>
-        </div>
-      </div>
-    </div>
+        {item.title}
+      </h3>
+      <span className="mt-2.5 block font-mono text-[11px] font-medium uppercase tracking-[1.8px] text-content-tertiary">
+        {item.tagline}
+      </span>
+      <p className="mt-5 max-w-[54ch] text-pretty font-sans text-[16px] leading-[1.75] text-content-secondary md:text-[17px]">
+        {item.body}
+      </p>
+    </>
   )
 }
 
 /* ---------- section -------------------------------------------------------- */
 
 export default function AmbassadorWhatYouGet() {
-  // Single open row at a time; first row open by default.
-  const [openIndex, setOpenIndex] = useState(0)
+  const [active, setActive] = useState(0)
+  // Pin the carousel only on lg+ without reduced-motion. Starts false so SSR and
+  // the first client render both output the static list (no hydration mismatch);
+  // the effect flips it on after mount.
+  const [pinnable, setPinnable] = useState(false)
+  const pinRef = useRef<HTMLDivElement>(null)
+  const activeRef = useRef(0)
 
-  // Only mount the Globe on lg+ (where it's visible). Avoids its world-data
-  // fetch + 60fps SVG redraw running on phones where the column is hidden.
-  const [showGlobe, setShowGlobe] = useState(false)
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)")
-    const sync = () => setShowGlobe(mq.matches)
+    const lg = window.matchMedia("(min-width: 1024px)")
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const sync = () => setPinnable(lg.matches && !reduced.matches)
     sync()
-    mq.addEventListener("change", sync)
-    return () => mq.removeEventListener("change", sync)
+    lg.addEventListener("change", sync)
+    reduced.addEventListener("change", sync)
+    return () => {
+      lg.removeEventListener("change", sync)
+      reduced.removeEventListener("change", sync)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!pinnable || !pinRef.current) return
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: pinRef.current,
+        start: "top top",
+        end: `+=${ITEMS.length * 62}%`,
+        pin: true,
+        anticipatePin: 1,
+        // Lower than the intro pin (priority 1) so the intro measures first.
+        refreshPriority: 0,
+        onUpdate: (self) => {
+          const idx = Math.min(ITEMS.length - 1, Math.floor(self.progress * ITEMS.length))
+          if (idx !== activeRef.current) {
+            activeRef.current = idx
+            setActive(idx)
+          }
+        },
+      })
+    }, pinRef)
+    return () => ctx.revert()
+  }, [pinnable])
 
   return (
     <section
       id="what-you-get"
-      // The hero-to-section gap lives HERE, on the <section> — NOT on the
-      // .container-page div below, whose `padding: 0 32px` rule zeroes vertical
-      // padding and would silently kill any pt/pb utility placed on it. Moderate
-      // on mobile, generous on desktop.
       className="relative bg-background pt-12 pb-16 md:pt-28 md:pb-24"
-      // width of the dots cluster, used to indent the expanded body text
-      style={{ ["--dots-w" as string]: "59px" }}
     >
-      {/* Faint grid backdrop behind the header — fades out before the body
-          (matches the reference). Kept subtle so the jet-black stays dominant. */}
+      {/* Faint grid backdrop behind the header — fades out before the body. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[70vh]"
         style={{
           backgroundImage:
             "linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)",
@@ -183,8 +158,9 @@ export default function AmbassadorWhatYouGet() {
           WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 42%, transparent 72%)",
         }}
       />
+
+      {/* header */}
       <div className="container-page relative z-10">
-        {/* header — two-tone stacked headline + purple accent underline + subtext */}
         <Reveal className="max-w-[920px]">
           <h2
             className="font-display leading-none tracking-[-0.01em]"
@@ -193,8 +169,6 @@ export default function AmbassadorWhatYouGet() {
             <span className="block text-content-primary">What&apos;s In It</span>
             <span className="block text-white/30">For You</span>
           </h2>
-
-          {/* purple accent underline (soft glow) */}
           <div
             aria-hidden
             className="mt-5 h-[3px] w-[clamp(150px,24vw,340px)] rounded-full md:mt-6"
@@ -203,39 +177,52 @@ export default function AmbassadorWhatYouGet() {
               boxShadow: "0 0 22px rgba(138,63,252,0.5)",
             }}
           />
-
           <p className="mt-7 max-w-[46ch] text-pretty font-sans text-[16px] leading-[1.7] text-content-secondary md:mt-9 md:text-[18px]">
             The ImagineArt Ambassador Program gives you everything you need to build a thriving creative
             community, whether that&apos;s your campus or your city.
           </p>
         </Reveal>
+      </div>
 
-        {/* two columns: globe on the left, accordion on the right */}
-        <div className="mt-12 flex flex-col gap-12 md:mt-16 lg:flex-row lg:items-center lg:gap-16">
-          {/* LEFT — the globe, vertically centered against the accordion list.
-              Hidden on small screens where there's no side column. */}
-          <div className="hidden lg:block lg:w-[42%] lg:shrink-0">
-            <div className="mx-auto aspect-square w-full max-w-[460px]">
-              {showGlobe && <Globe />}
+      {pinnable ? (
+        /* ---- desktop: pinned scroll carousel ---- */
+        <div ref={pinRef} className="relative z-10 h-screen">
+          <div className="container-page flex h-full items-center gap-16">
+            {/* globe (left) */}
+            <div className="w-[42%] shrink-0">
+              <div className="mx-auto aspect-square w-full max-w-[460px]">
+                <Globe />
+              </div>
+            </div>
+
+            {/* one item at a time (right), centered against the globe */}
+            <div className="min-w-0 flex-1">
+              <Dots active={active} />
+              <div className="relative mt-8 min-h-[300px]">
+                {ITEMS.map((item, i) => (
+                  <div
+                    key={item.title}
+                    className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+                      i === active ? "opacity-100" : "pointer-events-none opacity-0"
+                    }`}
+                  >
+                    <ItemContent item={item} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-
-          {/* RIGHT — the accordion + learn more link */}
-          <div className="min-w-0 flex-1">
-            <Reveal className="border-t border-border-primary">
-              {ITEMS.map((item, i) => (
-                <AccordionRow
-                  key={item.title}
-                  item={item}
-                  filled={i + 1}
-                  open={openIndex === i}
-                  onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
-                />
-              ))}
-            </Reveal>
-          </div>
         </div>
-      </div>
+      ) : (
+        /* ---- mobile / reduced-motion: plain stacked list ---- */
+        <div className="container-page relative z-10 mt-10 border-t border-border-primary">
+          {ITEMS.map((item) => (
+            <div key={item.title} className="border-b border-border-primary py-7">
+              <ItemContent item={item} />
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

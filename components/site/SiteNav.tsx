@@ -7,7 +7,7 @@ import { getLenisInstance } from "@/lib/lenis-instance"
 // Links point at the page's own sections (replaces the kit's placeholder labels).
 const NAV_LINKS = [
   { label: "Rewards", href: "#what-you-get" },
-  { label: "Who It's For", href: "#who" },
+  { label: "Who's It For", href: "#who" },
   { label: "FAQ", href: "#faq" },
 ]
 
