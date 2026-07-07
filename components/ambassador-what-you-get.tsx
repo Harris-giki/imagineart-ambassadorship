@@ -29,14 +29,14 @@ type Item = { title: string; tagline: string; body: string }
 
 const ITEMS: Item[] = [
   {
-    title: "Grow Your Local Scene",
+    title: "Grow Your Local Community",
     tagline: "Meetups, Workshops, Hackathons",
-    body: "Bring the creators around you together, whether that's your campus or your whole city. We back you with event funding, ready-to-use content, and promotion across ImagineArt's channels to help your community grow.",
+    body: "Bring the creators around you together, whether that's your campus or your whole city. Connect with like-minded people, host and organize events, and grow your community — backed by ready-to-use content, promotion across ImagineArt's channels, and event funding.",
   },
   {
     title: "Create & Experiment",
-    tagline: "Live Demos, Prototypes, Credits",
-    body: "Teach from experience by running live demos and prototyping workflows, uplifting the creators around you with the power of AI in art and design. Get monthly ImagineArt credits to power your workshops and projects.",
+    tagline: "Workshops, Experts, Prototypes",
+    body: "Organize workshops with experts to lead your community into creating with the power of AI in art and design, prototyping new workflows and sharing what you learn along the way.",
   },
   {
     title: "Shape The Product",

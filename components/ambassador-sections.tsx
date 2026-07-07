@@ -207,7 +207,20 @@ export function WhoWeWant() {
             />
             <p className="mt-7 max-w-[56ch] font-sans text-[17px] leading-[1.7] tracking-[-0.005em] text-content-secondary">
               Whether you lead a scene on campus or across your city, if you&apos;re active in your creative
-              community and want to go further with ImagineArt&apos;s support, we&apos;d love for you to apply.
+              community and want to go further with ImagineArt&apos;s support,{" "}
+              <a
+                href="https://tally.so/r/vGbDl8"
+                data-tally-open="vGbDl8"
+                data-tally-layout="modal"
+                data-tally-width="720"
+                data-tally-overlay="1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-content-brand underline underline-offset-4 transition-colors hover:text-white"
+              >
+                apply now
+              </a>
+              .
             </p>
           </Reveal>
         </div>
