@@ -70,7 +70,7 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
   // Backdrop carousel — crossfade background-3 -> 4 -> 5 on a timer; the 3 dots
   // (bottom-right) show the active slide. The extras mount just after first
   // paint so the preloader gates on background-3 alone.
-  const BACKDROPS = ["/showcase-images/1.jpeg", "/showcase-images/aa.jpg", "/showcase-images/5.jpeg"]
+  const BACKDROPS = ["/showcase-images/1.jpeg", "/showcase-images/5.jpeg", "/showcase-images/aa.jpg"]
   const [activeBg, setActiveBg] = useState(0)
   const [extraReady, setExtraReady] = useState(false)
 
@@ -398,20 +398,18 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             aria-hidden="true"
           >
             <span
-              className="mb-1.5 block font-sans tracking-[0.02em]"
+              className="mb-2.5 block font-mono font-semibold uppercase text-white/60"
               style={{
-                fontWeight: 400,
-                color: "#7a7a80",
-                fontSize: "clamp(14px, 1.4vw, 22px)",
+                fontSize: "clamp(11px, 1.1vw, 14px)",
+                letterSpacing: "1.8px",
                 textShadow: "0 2px 14px rgba(0,0,0,0.5)",
               }}
             >
               ImagineArt
             </span>
             <span
-              className="block font-sans leading-[0.95] tracking-[-0.02em] text-white"
+              className="block font-display font-semibold capitalize leading-[1.02] tracking-[-0.5px] text-white"
               style={{
-                fontWeight: 600,
                 fontSize: "clamp(38px, 4.6vw, 76px)",
                 textShadow: "0 6px 40px rgba(0,0,0,0.62)",
               }}
