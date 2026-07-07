@@ -398,9 +398,10 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
             aria-hidden="true"
           >
             <span
-              className="mb-1.5 block font-sans tracking-[0.02em] text-content-tertiary"
+              className="mb-1.5 block font-sans tracking-[0.02em]"
               style={{
                 fontWeight: 400,
+                color: "#7a7a80",
                 fontSize: "clamp(14px, 1.4vw, 22px)",
                 textShadow: "0 2px 14px rgba(0,0,0,0.5)",
               }}
@@ -408,10 +409,9 @@ export default function CinematicIntro({ children }: { children?: ReactNode }) {
               ImagineArt
             </span>
             <span
-              className="block font-display leading-[0.9] tracking-[-0.015em] text-white"
+              className="block font-sans leading-[0.95] tracking-[-0.02em] text-white"
               style={{
                 fontWeight: 600,
-                fontStretch: "condensed",
                 fontSize: "clamp(38px, 4.6vw, 76px)",
                 textShadow: "0 6px 40px rgba(0,0,0,0.62)",
               }}
