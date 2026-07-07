@@ -51,7 +51,7 @@ const ITEMS: Item[] = [
   {
     title: "Get Recognized",
     tagline: "Official Badge, Featured Profile",
-    body: "Wear a verified 'ImagineArt Student Ambassador' badge and get a featured profile across our community spaces — a standout addition to your résumé and portfolio.",
+    body: "Wear a verified 'ImagineArt Ambassador' badge and get a featured profile across our community spaces — a standout addition to your portfolio.",
   },
 ]
 
