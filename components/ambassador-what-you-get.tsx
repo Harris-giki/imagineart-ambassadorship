@@ -32,24 +32,24 @@ type Item = { title: string; tagline: string; body: string }
 
 const ITEMS: Item[] = [
   {
-    title: "Grow Your Campus Scene",
+    title: "Grow Your Local Scene",
     tagline: "Meetups, Workshops, Hackathons",
-    body: "Bring the creators at your university together. We back you with event funding, ready-to-use content, and promotion across ImagineArt's channels to help your campus community grow.",
+    body: "Bring the creators around you together, whether that's your campus or your whole city. We back you with event funding, ready-to-use content, and promotion across ImagineArt's channels to help your community grow.",
   },
   {
     title: "Create & Experiment",
     tagline: "Live Demos, Prototypes, Credits",
-    body: "Teach from experience by running live demos and prototyping workflows, uplifting the creators across your campus with the power of AI in art and design. Get monthly ImagineArt credits to power your workshops and projects.",
+    body: "Teach from experience by running live demos and prototyping workflows, uplifting the creators around you with the power of AI in art and design. Get monthly ImagineArt credits to power your workshops and projects.",
   },
   {
     title: "Shape The Product",
     tagline: "Early Access, Feedback Sessions",
-    body: "Bring your student community's perspective straight to the ImagineArt team. Get pre-release features and a seat in feedback sessions that influence what we build next.",
+    body: "Bring your community's perspective straight to the ImagineArt team. Get pre-release features and a seat in feedback sessions that influence what we build next.",
   },
   {
     title: "Connect & Contribute",
     tagline: "Private Ambassador Network",
-    body: "Swap what's working with student ambassadors on other campuses, and help shape how the program grows, through a private channel with fellow ambassadors and the ImagineArt team.",
+    body: "Swap what's working with ambassadors in other cities and on other campuses, and help shape how the program grows, through a private channel with fellow ambassadors and the ImagineArt team.",
   },
   {
     title: "Get Recognized",
@@ -205,8 +205,8 @@ export default function AmbassadorWhatYouGet() {
           />
 
           <p className="mt-7 max-w-[46ch] text-pretty font-sans text-[16px] leading-[1.7] text-content-secondary md:mt-9 md:text-[18px]">
-            The ImagineArt Student Ambassador Program gives you everything you need to build a thriving
-            creative community at your university.
+            The ImagineArt Ambassador Program gives you everything you need to build a thriving creative
+            community, whether that&apos;s your campus or your city.
           </p>
         </Reveal>
 

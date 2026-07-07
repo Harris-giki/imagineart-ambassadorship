@@ -16,7 +16,7 @@
 import Image from "next/image"
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card"
 
-const COLOR_SRC = "/background-2.png"
+const COLOR_SRC = "/showcase-images/7.jpeg"
 
 export default function AmbassadorHeroImage() {
   return (
@@ -48,7 +48,7 @@ export default function AmbassadorHeroImage() {
             <CardItem translateZ={70} className="pointer-events-none absolute inset-x-0 bottom-0">
               <div className="bg-gradient-to-t from-black/80 via-black/35 to-transparent px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[1.8px] text-white/60 md:text-[11px]">
-                  ImagineArt Student Ambassador Program
+                  ImagineArt Ambassador Program
                 </span>
                 <h2
                   className="h-scale-hero-caption mt-3 font-display font-semibold capitalize leading-[1.02] tracking-[-0.5px] text-white"
@@ -57,8 +57,8 @@ export default function AmbassadorHeroImage() {
                   Build &amp; Lead The Community
                 </h2>
                 <p className="mt-4 max-w-[54ch] text-pretty font-sans text-[15px] leading-[1.6] text-white/75 md:text-[17px]">
-                  Represent ImagineArt at your university. Host events, mentor fellow students, and grow a
-                  thriving creative community on your campus.
+                  Represent ImagineArt in your city or on your campus. Host events, mentor fellow creators,
+                  and grow a thriving creative community around you.
                 </p>
               </div>
             </CardItem>

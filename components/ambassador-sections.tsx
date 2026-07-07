@@ -36,23 +36,24 @@ function SectionHeading({ children, className = "" }: { children: React.ReactNod
 
 /* ---------- data ----------------------------------------------------------- */
 
-const PROFILES: { image: string; eyebrow: string; n: string; title: string; body: string }[] = [
+const PROFILES: { image: string; eyebrow: string; n: string; title: string; body: string; objectPosition?: string }[] = [
   {
-    image: "/background-1-1.png",
+    image: "/showcase-images/2.jpeg",
     eyebrow: "Community · Builders",
     n: "01",
     title: "Community Builders",
-    body: "You bring students together and uplift their creative workflow by organizing meetups, leading campus groups, or holding a visible presence on Discord, Reddit, or X.",
+    body: "You bring creators together and uplift their creative workflow by organizing meetups, leading campus or city groups, or holding a visible presence on Discord, Reddit, or X.",
   },
   {
-    image: "/background-1-2.png",
+    image: "/showcase-images/3.jpeg",
+    objectPosition: "50% 22%",
     eyebrow: "Top · Creators",
     n: "02",
     title: "Top Creators",
     body: "You consistently create stunning content with ImagineArt and engage positively and frequently in community spaces.",
   },
   {
-    image: "/background-1-4.png",
+    image: "/showcase-images/nn.JPG",
     eyebrow: "Students · Campus",
     n: "03",
     title: "Students & Campus Leaders",
@@ -117,6 +118,7 @@ function AmbassadorCard({
   body,
   priority = false,
   className = "",
+  objectPosition = "center",
 }: {
   image: string
   eyebrow: string
@@ -125,6 +127,7 @@ function AmbassadorCard({
   body: string
   priority?: boolean
   className?: string
+  objectPosition?: string
 }) {
   return (
     <CardContainer
@@ -140,6 +143,7 @@ function AmbassadorCard({
           fill
           priority={priority}
           sizes="(max-width: 768px) 100vw, 50vw"
+          style={{ objectPosition }}
           className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
         />
         {/* legibility scrims (above the image, below the floating text) */}
@@ -202,8 +206,8 @@ export function WhoWeWant() {
               }}
             />
             <p className="mt-7 max-w-[56ch] font-sans text-[17px] leading-[1.7] tracking-[-0.005em] text-content-secondary">
-              If you&apos;re active in your community and want to go further with ImagineArt&apos;s support, we
-              encourage you to apply. No professional title required.
+              Whether you lead a scene on campus or across your city, if you&apos;re active in your creative
+              community and want to go further with ImagineArt&apos;s support, we&apos;d love for you to apply.
             </p>
           </Reveal>
         </div>
